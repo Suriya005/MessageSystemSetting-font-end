@@ -118,24 +118,12 @@ const rowTemplateData = [
     },
     {
         id: 'ObjectId("654dccf35fde0679c97f5afd")',
-        name: 'Forgot Password',
-        desc: 'Forgot Password Email.',
+        name: 'Contact Us',
+        desc: 'Contact Us Email.',
         messageTypeId: 'ObjectId("654dc9c65fde0679c97f5afc")',
         content: {
-            subject: 'Complete your password reset request',
-            body: `<h1><span class="il">Reset</span>&nbsp;your&nbsp;<span class="il">password</span></h1>
-<p><span class="il">Hi John,</span></p>
-<p><span class="il">Let's reset your password so you can get back to login.</span></p>
-<table style="border-collapse: collapse; width: 100%;" border="1">
-<tbody>
-<tr>
-<td style="width: 700px; text-align: center;"><strong>Reset Password</strong></td>
-</tr>
-</tbody>
-</table>
-<p><span class="il">If you did not ask to reset your password you may want to review your recent account access for any unusual activity.</span></p>
-<p><span class="il">We're here to help if you need it. Visit the Help Center for more info or contact us.<br /></span></p>
-<p><strong><span class="il">The BBO team</span></strong></p>`,
+            subject: 'Contact Us Email Subject',
+            body: `<h1><span class="il">Contact</span>&nbsp;Us</h1>`,
         },
         status: 'active',
     },
@@ -260,7 +248,6 @@ const msgSetting = () => {
         rowData.map((item) => {
             setProviderSelected((providerSelected) => [...providerSelected, { value: item.id, label: item.name }]);
         });
-        console.log(providerSelected);
         data.status === 'active' ? setStatusToggleChannel(true) : setStatusToggleChannel(false);
         setDataForEditChannel(data);
         setModalEditChannel(true);
@@ -340,7 +327,6 @@ const msgSetting = () => {
         rowDataChannel.map((item) => {
             setChannelSelected((channelSelected) => [...channelSelected, { value: item._id, label: item.name }]);
         });
-
         data.status === 'active' ? setStatusToggleType(true) : setStatusToggleType(false);
         setDataForEditType(data);
         setModalEditType(true);
@@ -419,6 +405,7 @@ const msgSetting = () => {
     };
 
     const openEditModalTemplate = (data: any) => {
+        setTemplateValue('');
         setTypeSelected([]);
         rowDataType.map((item) => {
             setTypeSelected((typeSelected) => [...typeSelected, { value: item.id, label: item.name }]);
@@ -429,6 +416,7 @@ const msgSetting = () => {
         setModalEditTemplate(true);
     };
     const openAddModalTemplate = () => {
+        setTemplateValue('');
         rowDataType.map((item) => {
             setTypeSelected((typeSelected) => [...typeSelected, { value: item.id, label: item.name }]);
         });
@@ -570,9 +558,9 @@ const msgSetting = () => {
                                                     },
                                                     {
                                                         accessor: 'actions',
-                                                        title: 'Actions',
-                                                        // align: 'center',
+                                                        title: '',
                                                         width: '200px',
+                                                        textAlignment: 'center',
                                                         render: (item) => {
                                                             return (
                                                                 <>
@@ -830,7 +818,7 @@ const msgSetting = () => {
                                             <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-hidden my-8 w-full max-w-xl text-black dark:text-white-dark">
                                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                                     <div className="text-lg font-bold">Add Provider</div>
-                                                    <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalAdd(true)}>
+                                                    <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalAdd(false)}>
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             width="20"
@@ -1086,7 +1074,7 @@ const msgSetting = () => {
                                                     },
                                                     {
                                                         accessor: 'actions',
-                                                        title: 'Actions',
+                                                        title: '',
                                                         // align: 'center',
                                                         width: '200px',
                                                         render: (item) => {
@@ -1484,7 +1472,7 @@ const msgSetting = () => {
                                                     },
                                                     {
                                                         accessor: 'actions',
-                                                        title: 'Actions',
+                                                        title: '',
                                                         // align: 'center',
                                                         width: '200px',
                                                         render: (item) => {
@@ -1562,7 +1550,7 @@ const msgSetting = () => {
                                         >
                                             <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
                                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                                    <div className="text-lg font-bold">Edit type</div>
+                                                    <div className="text-lg font-bold">Edit Type</div>
                                                     <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalAddType(false)}>
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
@@ -1584,11 +1572,26 @@ const msgSetting = () => {
                                                     <form>
                                                         <div className="flex items-center justify-end my-4 mr-5">
                                                             <label htmlFor="">Type</label>
-                                                            <input type="text" placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                            <input
+                                                                value={dataForEditType.name}
+                                                                onChange={handleChangeType}
+                                                                name="name"
+                                                                type="text"
+                                                                placeholder=""
+                                                                className="w-96 ml-5 form-input text-base"
+                                                                required
+                                                            />
                                                         </div>
                                                         <div className="flex items-start justify-end my-4 mr-5">
                                                             <label htmlFor="">Description</label>
-                                                            <textarea placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                            <textarea
+                                                                value={dataForEditType.desc}
+                                                                onChange={handleChangeType}
+                                                                name="desc"
+                                                                placeholder=""
+                                                                className="w-96 ml-5 form-input text-base"
+                                                                required
+                                                            />
                                                         </div>
 
                                                         <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
@@ -1605,12 +1608,12 @@ const msgSetting = () => {
                                                                         type="checkbox"
                                                                         className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                                                                         id="custom_switch_checkbox1"
-                                                                        checked={statusToggleChannel}
-                                                                        onChange={() => setStatusToggleChannel(!statusToggleChannel)}
+                                                                        checked={statusToggleType}
+                                                                        onChange={() => setStatusToggleType(!statusToggleType)}
                                                                     />
                                                                     <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full before:bg-[url(/assets/images/close.svg)] before:bg-no-repeat before:bg-center peer-checked:before:left-7 peer-checked:before:bg-[url(/assets/images/checked.svg)] peer-checked:border-success peer-checked:before:bg-success before:transition-all before:duration-300"></span>
                                                                 </label>
-                                                                {statusToggleChannel ? (
+                                                                {statusToggleType ? (
                                                                     <span className="text-sm text-success px-5">Active</span>
                                                                 ) : (
                                                                     <span className="text-sm text-danger px-5">Inactive</span>
@@ -1662,7 +1665,7 @@ const msgSetting = () => {
                                         >
                                             <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
                                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                                    <div className="text-lg font-bold">Add Channel</div>
+                                                    <div className="text-lg font-bold">Add Type</div>
                                                     <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalAddType(false)}>
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
@@ -1807,7 +1810,6 @@ const msgSetting = () => {
                                 </div>
                             </Dialog>
                         </Transition>
-                        
                     </Tab.Panel>
 
                     {/* Template content */}
@@ -1866,7 +1868,7 @@ const msgSetting = () => {
                                                     },
                                                     {
                                                         accessor: 'actions',
-                                                        title: 'Actions',
+                                                        title: '',
                                                         // align: 'center',
                                                         width: '200px',
                                                         render: (item) => {
@@ -1942,9 +1944,9 @@ const msgSetting = () => {
                                             leaveFrom="opacity-100 scale-100"
                                             leaveTo="opacity-0 scale-95"
                                         >
-                                            <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
+                                            <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-2xl text-black dark:text-white-dark">
                                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                                    <div className="text-lg font-bold">Edit template</div>
+                                                    <div className="text-lg font-bold">Edit Template</div>
                                                     <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalEditTemplate(false)}>
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
@@ -1966,47 +1968,69 @@ const msgSetting = () => {
                                                     <form>
                                                         <div className="flex items-center justify-end my-4 mr-5">
                                                             <label htmlFor="">Template</label>
-                                                            <input type="text" placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                            <input
+                                                                value={dataForEditTemplate.name}
+                                                                onChange={handleChangeTemplate}
+                                                                name="name"
+                                                                type="text"
+                                                                placeholder=""
+                                                                className="w-3/4 ml-5 form-input text-base"
+                                                                required
+                                                            />
                                                         </div>
                                                         <div className="flex items-start justify-end my-4 mr-5">
                                                             <label htmlFor="">Description</label>
-                                                            <textarea placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                            <textarea
+                                                                value={dataForEditTemplate.desc}
+                                                                onChange={handleChangeTemplate}
+                                                                name="desc"
+                                                                placeholder=""
+                                                                className="w-3/4 ml-5 form-input text-base"
+                                                                required
+                                                            />
                                                         </div>
 
                                                         <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
                                                             <label htmlFor="">Type</label>
-                                                            <div className="w-96 ml-5 text-base">
-                                                                <Select defaultValue={channelSelected[0]} options={channelSelected} isSearchable={false} />
+                                                            <div className="w-3/4 ml-5 text-base">
+                                                                <Select defaultValue={typeSelected[0]} options={typeSelected} isSearchable={false} />
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
-                                                            <div className="flex flex-col">
-                                                                <label className="w-96 ml-5 text-base" htmlFor="">
-                                                                    Subject
-                                                                </label>
-                                                                <input type="text" placeholder="" className="w-96 ml-5 form-input text-base" required />
-                                                                <label className="w-96 ml-5 text-base" htmlFor="">
-                                                                    Body
-                                                                </label>
-                                                                <div className="w-96 ml-5 text-base">
-                                                                    <ReactQuill theme="snow" value={templateValue} onChange={setTemplateValue} />
-                                                                </div>
-                                                            </div>
+                                                        <div className="flex items-center justify-end my-4 mr-5">
+                                                            <label className="ml-5 text-base pt-4" htmlFor="">
+                                                                Subject
+                                                            </label>
+                                                            <input
+                                                                value={dataForEditTemplate.content.subject}
+                                                                onChange={handleChangeTemplate}
+                                                                name="content.subject" 
+                                                             type="text" placeholder="" className="w-3/4 ml-5 form-input text-base" required />
+                                                        </div>
+
+                                                        <div className="flex items-start justify-end my-4 mr-5">
+                                                            <label className="ml-5 text-base pt-4" htmlFor="">
+                                                                Body
+                                                            </label>
+                                                            <div className="w-3/4 ml-5 text-base">
+                                                                <ReactQuill theme="snow" value={
+                                                                    dataForEditTemplate.content.body
+                                                                } onChange={setTemplateValue} />
+                                                            </div>{' '}
                                                         </div>
                                                         <div className="flex items-start justify-end my-4 mr-5">
                                                             <label htmlFor="">Status</label>
-                                                            <div className="w-96 ml-5 flex items-center">
+                                                            <div className="w-3/4 ml-5 flex items-center">
                                                                 <label className="w-12 h-6 relative">
                                                                     <input
                                                                         type="checkbox"
                                                                         className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                                                                         id="custom_switch_checkbox1"
-                                                                        checked={statusToggleChannel}
-                                                                        onChange={() => setStatusToggleChannel(!statusToggleChannel)}
+                                                                        checked={statusToggleTemplate}
+                                                                        onChange={() => setStatusToggleTemplate(!statusToggleTemplate)}
                                                                     />
                                                                     <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full before:bg-[url(/assets/images/close.svg)] before:bg-no-repeat before:bg-center peer-checked:before:left-7 peer-checked:before:bg-[url(/assets/images/checked.svg)] peer-checked:border-success peer-checked:before:bg-success before:transition-all before:duration-300"></span>
                                                                 </label>
-                                                                {statusToggleChannel ? (
+                                                                {statusToggleTemplate ? (
                                                                     <span className="text-sm text-success px-5">Active</span>
                                                                 ) : (
                                                                     <span className="text-sm text-danger px-5">Inactive</span>
@@ -2055,10 +2079,10 @@ const msgSetting = () => {
                                             leaveFrom="opacity-100 scale-100"
                                             leaveTo="opacity-0 scale-95"
                                         >
-                                            <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
+                                            <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-2xl text-black dark:text-white-dark">
                                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                                    <div className="text-lg font-bold">Add template</div>
-                                                    <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalEditTemplate(false)}>
+                                                    <div className="text-lg font-bold">Add Template</div>
+                                                    <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalAddTemplate(false)}>
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             width="20"
@@ -2079,36 +2103,39 @@ const msgSetting = () => {
                                                     <form>
                                                         <div className="flex items-center justify-end my-4 mr-5">
                                                             <label htmlFor="">Template</label>
-                                                            <input type="text" placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                            <input type="text" placeholder="" className="w-3/4 ml-5 form-input text-base" required />
                                                         </div>
                                                         <div className="flex items-start justify-end my-4 mr-5">
                                                             <label htmlFor="">Description</label>
-                                                            <textarea placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                            <textarea placeholder="" className="w-3/4 ml-5 form-input text-base" required />
                                                         </div>
 
                                                         <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
                                                             <label htmlFor="">Type</label>
-                                                            <div className="w-96 ml-5 text-base">
+                                                            <div className="w-3/4 ml-5 text-base">
                                                                 <Select defaultValue={channelSelected[0]} options={channelSelected} isSearchable={false} />
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
-                                                            <div className="flex flex-col">
-                                                                <label className="w-96 ml-5 text-base" htmlFor="">
-                                                                    Subject
-                                                                </label>
-                                                                <input type="text" placeholder="" className="w-96 ml-5 form-input text-base" required />
-                                                                <label className="w-96 ml-5 text-base" htmlFor="">
-                                                                    Body
-                                                                </label>
-                                                                <div className="w-96 ml-5 text-base">
-                                                                    <ReactQuill theme="snow" value={templateValue} onChange={setTemplateValue} />
-                                                                </div>
-                                                            </div>
+
+                                                        <div className="flex items-center justify-end my-4 mr-5">
+                                                            <label className="ml-5 text-base pt-4" htmlFor="">
+                                                                Subject
+                                                            </label>
+                                                            <input type="text" placeholder="" className="w-3/4 ml-5 form-input text-base" required />
                                                         </div>
+
+                                                        <div className="flex items-start justify-end my-4 mr-5">
+                                                            <label className="ml-5 text-base pt-4" htmlFor="">
+                                                                Body
+                                                            </label>
+                                                            <div className="w-3/4 ml-5 text-base">
+                                                                <ReactQuill theme="snow" value={templateValue} onChange={setTemplateValue} />
+                                                            </div>{' '}
+                                                        </div>
+
                                                         <div className="flex items-start justify-end my-4 mr-5">
                                                             <label htmlFor="">Status</label>
-                                                            <div className="w-96 ml-5 flex items-center">
+                                                            <div className="w-3/4 ml-5 flex items-center">
                                                                 <label className="w-12 h-6 relative">
                                                                     <input
                                                                         type="checkbox"
@@ -2128,10 +2155,10 @@ const msgSetting = () => {
                                                         </div>
                                                     </form>
                                                     <div className="flex justify-end items-center mt-8">
-                                                        <button type="button" className="btn btn-outline-danger" onClick={() => setModalEditTemplate(false)}>
+                                                        <button type="button" className="btn btn-outline-danger" onClick={() => setModalAddTemplate(false)}>
                                                             Cancel
                                                         </button>
-                                                        <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModalEditTemplate(false)}>
+                                                        <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModalAddTemplate(false)}>
                                                             Save
                                                         </button>
                                                     </div>

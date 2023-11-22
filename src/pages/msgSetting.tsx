@@ -12,6 +12,7 @@ import { Tab } from '@headlessui/react';
 import Select from 'react-select';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { em } from '@fullcalendar/core/internal-common';
 
 const rowData = [
     {
@@ -460,13 +461,14 @@ const msgSetting = () => {
                 {currentTabName === 'Provider' ? 'Provider' : currentTabName === 'Channel' ? 'Channel' : currentTabName === 'Type' ? 'Type' : currentTabName === 'Template' ? 'Template' : ''}
             </h1>
             <Tab.Group>
-                <Tab.List className="mt-3 flex flex-wrap border-b border-white-light dark:border-[#191e3a]">
+                <Tab.List className="mt-3 flex w-full ">
                     <Tab as={Fragment}>
                         {({ selected }) => (
                             <button
                                 onClick={() => setCurrentTabName('Provider')}
-                                className={`${selected ? '!border-white-light !border-b-white  text-primary !outline-none dark:!border-[#191e3a] dark:!border-b-black' : ''}
-                    dark:hover:border-b-black -mb-[1px] block border border-transparent p-3.5 py-2 hover:text-primary`}
+                                className={`${
+                                    selected ? 'border-b !border-primary text-primary !outline-none' : ''
+                                } -mb-[1px] font-bold flex items-center border-transparent p-5 py-3 before:inline-block hover:border-b hover:!border-primary hover:text-primary`}
                             >
                                 Provider
                             </button>
@@ -476,8 +478,9 @@ const msgSetting = () => {
                         {({ selected }) => (
                             <button
                                 onClick={() => setCurrentTabName('Channel')}
-                                className={`${selected ? '!border-white-light !border-b-white  text-primary !outline-none dark:!border-[#191e3a] dark:!border-b-black' : ''}
-                    dark:hover:border-b-black -mb-[1px] block border border-transparent p-3.5 py-2 hover:text-primary`}
+                                className={`${
+                                    selected ? 'border-b !border-primary text-primary !outline-none' : ''
+                                } -mb-[1px] font-bold flex items-center border-transparent p-5 py-3 before:inline-block hover:border-b hover:!border-primary hover:text-primary`}
                             >
                                 Channel
                             </button>
@@ -487,8 +490,9 @@ const msgSetting = () => {
                         {({ selected }) => (
                             <button
                                 onClick={() => setCurrentTabName('Type')}
-                                className={`${selected ? '!border-white-light !border-b-white  text-primary !outline-none dark:!border-[#191e3a] dark:!border-b-black' : ''}
-                    dark:hover:border-b-black -mb-[1px] block border border-transparent p-3.5 py-2 hover:text-primary`}
+                                className={`${
+                                    selected ? 'border-b !border-primary text-primary !outline-none' : ''
+                                } -mb-[1px] font-bold flex items-center border-transparent p-5 py-3 before:inline-block hover:border-b hover:!border-primary hover:text-primary`}
                             >
                                 Type
                             </button>
@@ -498,8 +502,9 @@ const msgSetting = () => {
                         {({ selected }) => (
                             <button
                                 onClick={() => setCurrentTabName('Template')}
-                                className={`${selected ? '!border-white-light !border-b-white  text-primary !outline-none dark:!border-[#191e3a] dark:!border-b-black' : ''}
-                    dark:hover:border-b-black -mb-[1px] block border border-transparent p-3.5 py-2 hover:text-primary`}
+                                className={`${
+                                    selected ? 'border-b !border-primary text-primary !outline-none' : ''
+                                } -mb-[1px] font-bold flex items-center border-transparent p-5 py-3 before:inline-block hover:border-b hover:!border-primary hover:text-primary`}
                             >
                                 Template
                             </button>
@@ -521,15 +526,27 @@ const msgSetting = () => {
                                                 </button>
                                             </h5>
                                             <div className=" mr-3">
-                                                <select id="filter" className="form-input w-auto select form">
-                                                    <option selected>Filter</option>
-                                                    <option value="US">United States</option>
-                                                    <option value="CA">Canada</option>
-                                                    <option value="FR">France</option>
-                                                    <option value="DE">Germany</option>
-                                                </select>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
+                                                        <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path opacity="0.8" d="M1 1L5.44643 3L9.89286 1" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-4">
+                                                        <option selected>Filter</option>
+                                                        <option value="active">Active</option>
+                                                        <option value="inactive">Inactive</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <input type="text" className="form-input w-auto" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 right-1 pl-3 flex items-center pointer-events-none">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                                    </svg>
+                                                </div>
+                                                <input className="form-input w-auto pr-4" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                                            </div>
                                         </div>
 
                                         <div className="datatables">
@@ -596,10 +613,10 @@ const msgSetting = () => {
                                                 recordsPerPage={pageSize}
                                                 page={page}
                                                 onPageChange={(p) => setPage(p)}
-                                                recordsPerPageOptions={PAGE_SIZES}
-                                                onRecordsPerPageChange={setPageSize}
+                                                // recordsPerPageOptions={setPageSize}
+                                                // onRecordsPerPageChange={setPageSize}
                                                 minHeight={200}
-                                                paginationText={({ from, to, totalRecords }) => `Showing  ${from} to ${to} of ${totalRecords} entries`}
+                                                paginationText={({ from, to, totalRecords }) => ``}
                                             />
                                         </div>
                                     </div>
@@ -1037,15 +1054,27 @@ const msgSetting = () => {
                                                 </button>
                                             </h5>
                                             <div className=" mr-3">
-                                                <select id="filter" className="form-input w-auto select form">
-                                                    <option selected>Filter</option>
-                                                    <option value="US">United States</option>
-                                                    <option value="CA">Canada</option>
-                                                    <option value="FR">France</option>
-                                                    <option value="DE">Germany</option>
-                                                </select>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
+                                                        <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path opacity="0.8" d="M1 1L5.44643 3L9.89286 1" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-4">
+                                                        <option selected>Filter</option>
+                                                        <option value="active">Active</option>
+                                                        <option value="inactive">Inactive</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <input type="text" className="form-input w-auto" placeholder="Search..." value={searchChannel} onChange={(e) => setSearchChannel(e.target.value)} />
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 right-1 pl-3 flex items-center pointer-events-none">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                                    </svg>
+                                                </div>
+                                                <input className="form-input w-auto pr-4" placeholder="Search..." value={searchChannel} onChange={(e) => setSearchChannel(e.target.value)} />
+                                            </div>
                                         </div>
 
                                         <div className="datatables">
@@ -1109,13 +1138,13 @@ const msgSetting = () => {
                                                     },
                                                 ]}
                                                 totalRecords={initialRecords.length}
-                                                recordsPerPage={pageSize}
+                                                recordsPerPage={pageSizeChannel}
                                                 page={page}
                                                 onPageChange={(p) => setPage(p)}
-                                                recordsPerPageOptions={PAGE_SIZES}
-                                                onRecordsPerPageChange={setPageSize}
+                                                // recordsPerPageOptions={PAGE_SIZES}
+                                                // onRecordsPerPageChange={setPageSizeChannel}
                                                 minHeight={200}
-                                                paginationText={({ from, to, totalRecords }) => `Showing  ${from} to ${to} of ${totalRecords} entries`}
+                                                paginationText={({ from, to, totalRecords }) => ``}
                                             />
                                         </div>
                                     </div>
@@ -1435,15 +1464,27 @@ const msgSetting = () => {
                                                 </button>
                                             </h5>
                                             <div className=" mr-3">
-                                                <select id="filter" className="form-input w-auto select form">
-                                                    <option selected>Filter</option>
-                                                    <option value="US">United States</option>
-                                                    <option value="CA">Canada</option>
-                                                    <option value="FR">France</option>
-                                                    <option value="DE">Germany</option>
-                                                </select>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
+                                                        <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path opacity="0.8" d="M1 1L5.44643 3L9.89286 1" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-4">
+                                                        <option selected>Filter</option>
+                                                        <option value="active">Active</option>
+                                                        <option value="inactive">Inactive</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <input type="text" className="form-input w-auto" placeholder="Search..." value={searchType} onChange={(e) => setSearchType(e.target.value)} />
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 right-1 pl-3 flex items-center pointer-events-none">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                                    </svg>
+                                                </div>
+                                                <input className="form-input w-auto pr-4" placeholder="Search..." value={searchType} onChange={(e) => setSearchType(e.target.value)} />
+                                            </div>
                                         </div>
 
                                         <div className="datatables">
@@ -1510,10 +1551,10 @@ const msgSetting = () => {
                                                 recordsPerPage={pageSize}
                                                 page={page}
                                                 onPageChange={(p) => setPage(p)}
-                                                recordsPerPageOptions={PAGE_SIZES}
-                                                onRecordsPerPageChange={setPageSize}
+                                                // recordsPerPageOptions={PAGE_SIZES}
+                                                // onRecordsPerPageChange={setPageSize}
                                                 minHeight={200}
-                                                paginationText={({ from, to, totalRecords }) => `Showing  ${from} to ${to} of ${totalRecords} entries`}
+                                                paginationText={({ from, to, totalRecords }) => ``}
                                             />
                                         </div>
                                     </div>
@@ -1831,15 +1872,27 @@ const msgSetting = () => {
                                                 </button>
                                             </h5>
                                             <div className=" mr-3">
-                                                <select id="filter" className="form-input w-auto select form">
-                                                    <option selected>Filter</option>
-                                                    <option value="US">United States</option>
-                                                    <option value="CA">Canada</option>
-                                                    <option value="FR">France</option>
-                                                    <option value="DE">Germany</option>
-                                                </select>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
+                                                        <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path opacity="0.8" d="M1 1L5.44643 3L9.89286 1" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-4">
+                                                        <option selected>Filter</option>
+                                                        <option value="active">Active</option>
+                                                        <option value="inactive">Inactive</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <input type="text" className="form-input w-auto" placeholder="Search..." value={searchTemplate} onChange={(e) => setSearchTemplate(e.target.value)} />
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 right-1 pl-3 flex items-center pointer-events-none">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                                    </svg>
+                                                </div>
+                                                <input className="form-input w-auto pr-4" placeholder="Search..." value={searchTemplate} onChange={(e) => setSearchTemplate(e.target.value)} />
+                                            </div>
                                         </div>
 
                                         <div className="datatables">
@@ -1906,10 +1959,10 @@ const msgSetting = () => {
                                                 recordsPerPage={pageSize}
                                                 page={page}
                                                 onPageChange={(p) => setPage(p)}
-                                                recordsPerPageOptions={PAGE_SIZES}
-                                                onRecordsPerPageChange={setPageSize}
+                                                // recordsPerPageOptions={PAGE_SIZES}
+                                                // onRecordsPerPageChange={setPageSize}
                                                 minHeight={200}
-                                                paginationText={({ from, to, totalRecords }) => `Showing  ${from} to ${to} of ${totalRecords} entries`}
+                                                paginationText={({ from, to, totalRecords }) => ``}
                                             />
                                         </div>
                                     </div>
@@ -2003,8 +2056,12 @@ const msgSetting = () => {
                                                             <input
                                                                 value={dataForEditTemplate.content.subject}
                                                                 onChange={handleChangeTemplate}
-                                                                name="content.subject" 
-                                                             type="text" placeholder="" className="w-3/4 ml-5 form-input text-base" required />
+                                                                name="content.subject"
+                                                                type="text"
+                                                                placeholder=""
+                                                                className="w-3/4 ml-5 form-input text-base"
+                                                                required
+                                                            />
                                                         </div>
 
                                                         <div className="flex items-start justify-end my-4 mr-5">
@@ -2012,9 +2069,7 @@ const msgSetting = () => {
                                                                 Body
                                                             </label>
                                                             <div className="w-3/4 ml-5 text-base">
-                                                                <ReactQuill theme="snow" value={
-                                                                    dataForEditTemplate.content.body
-                                                                } onChange={setTemplateValue} />
+                                                                <ReactQuill theme="snow" value={dataForEditTemplate.content.body} onChange={setTemplateValue} />
                                                             </div>{' '}
                                                         </div>
                                                         <div className="flex items-start justify-end my-4 mr-5">

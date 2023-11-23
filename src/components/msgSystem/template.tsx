@@ -175,7 +175,7 @@ export default function MsgTemplate() {
                         item.name.toLowerCase().includes(searchTemplate.toLowerCase()) ||
                         item.status.toLowerCase().includes(searchTemplate.toLowerCase())
                     );
-                } 
+                }
             });
         });
     }, [filterTemplate]);
@@ -185,14 +185,9 @@ export default function MsgTemplate() {
                 <div className="grid xl:grid-cols-3 gap-6 mb-6">
                     <div className="panel h-full xl:col-span-3">
                         <div className="panel">
-                        <div className="flex items-center justify-end mb-5">
+                            <div className="flex items-center justify-end mb-5">
                                 <h5 className="mr-3 font-semibold text-lg dark:text-white-light">
-                                    <button
-                                        onClick={() => setModalAddTemplate(true)}
-                                        type="button"
-                                        className="btn
-                                                bg-[#2684FC] text-white-light hover:bg-[#2684FC] hover:text-white-light"
-                                    >
+                                    <button onClick={() => setModalAddTemplate(true)} type="button" className="btn btn-primary">
                                         + Add new
                                     </button>
                                 </h5>
@@ -204,7 +199,7 @@ export default function MsgTemplate() {
                                             </svg>
                                         </div>
                                         <select id="filter" name="filter" value={filterTemplate} onChange={(e) => setFilterTemplate(e.target.value)} className="form-input w-auto pr-5">
-                                            <option selected>Filter</option>
+                                            <option selected>All status</option>
                                             <option value="active">Active</option>
                                             <option value="inactive">Inactive</option>
                                         </select>
@@ -235,13 +230,13 @@ export default function MsgTemplate() {
                                             width: '200px',
                                             render: ({ status }) => {
                                                 if (status === 'active') {
-                                                    return <span className="text-green-500">Active</span>;
+                                                    return <span className="badge badge-outline-success">Active</span>;
                                                 } else if (status === 'inactive') {
-                                                    return <span className="text-red-500">Inactive</span>;
+                                                    return <span className="badge badge-outline-danger">Inactive</span>;
                                                 } else if (status === 'pending') {
-                                                    return <span className="text-yellow-500">Pending</span>;
+                                                    return <span className="badge badge-outline-wanning">Pending</span>;
                                                 } else {
-                                                    return <span className="text-gray-500">Unknown</span>;
+                                                    return <span className="badge badge-outline-dark">Unknown</span>;
                                                 }
                                             },
                                         },
@@ -254,23 +249,22 @@ export default function MsgTemplate() {
                                                 return (
                                                     <>
                                                         <div className="flex justify-around">
-                                                            <button type="button" onClick={() => openEditModalTemplate(item)} className="btn btn-warning">
-                                                                <svg width="21" height="17" viewBox="0 0 21 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <button type="button" onClick={() => openEditModalTemplate(item)} className="btn btn-warning py-3">
+                                                                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                     <path
-                                                                        d="M9.79061 3.54168H5.59307C5.14777 3.54168 4.72071 3.69094 4.40583 3.95661C4.09096 4.22229 3.91406 4.58262 3.91406 4.95835V12.75C3.91406 13.1257 4.09096 13.4861 4.40583 13.7517C4.72071 14.0174 5.14777 14.1667 5.59307 14.1667H14.8276C15.2729 14.1667 15.7 14.0174 16.0149 13.7517C16.3298 13.4861 16.5067 13.1257 16.5067 12.75V9.20835M15.3196 2.5401C15.4745 2.40479 15.6597 2.29687 15.8646 2.22262C16.0694 2.14837 16.2898 2.10929 16.5127 2.10766C16.7356 2.10602 16.9567 2.14187 17.1631 2.2131C17.3694 2.28433 17.5569 2.38952 17.7145 2.52254C17.8722 2.65555 17.9968 2.81373 18.0813 2.98783C18.1657 3.16193 18.2082 3.34848 18.2062 3.53658C18.2043 3.72469 18.158 3.91058 18.07 4.08342C17.982 4.25626 17.8541 4.41258 17.6937 4.54326L10.4857 10.625H8.11159V8.62185L15.3196 2.5401Z"
+                                                                        d="M6.79061 2.54174H2.59307C2.14777 2.54174 1.72071 2.691 1.40583 2.95667C1.09096 3.22235 0.914063 3.58268 0.914062 3.95841V11.7501C0.914063 12.1258 1.09096 12.4861 1.40583 12.7518C1.72071 13.0175 2.14777 13.1667 2.59307 13.1667H11.8276C12.2729 13.1667 12.7 13.0175 13.0149 12.7518C13.3298 12.4861 13.5067 12.1258 13.5067 11.7501V8.20841M12.3196 1.54016C12.4745 1.40485 12.6597 1.29693 12.8646 1.22268C13.0694 1.14843 13.2898 1.10935 13.5127 1.10772C13.7356 1.10608 13.9567 1.14193 14.1631 1.21316C14.3694 1.28439 14.5569 1.38958 14.7145 1.5226C14.8722 1.65561 14.9968 1.81379 15.0813 1.98789C15.1657 2.16199 15.2082 2.34854 15.2062 2.53664C15.2043 2.72475 15.158 2.91064 15.07 3.08348C14.982 3.25632 14.8541 3.41264 14.6937 3.54332L7.48572 9.62507H5.11159V7.62191L12.3196 1.54016Z"
                                                                         stroke="white"
-                                                                        stroke-width="2"
-                                                                        stroke-linecap="round"
+                                                                        stroke-linecap="square"
                                                                         stroke-linejoin="round"
                                                                     />
                                                                 </svg>
                                                             </button>
-                                                            <button type="button" onClick={() => setModalDeleteTemplate(true)} className="btn btn-danger">
-                                                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <button type="button" onClick={() => setModalDeleteTemplate(true)} className="btn btn-danger py-3">
+                                                                <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                     <path
-                                                                        d="M7.5 8.25003V12.75M10.5 8.25003V12.75M3 5.25003H15M14.25 5.25003L13.5997 14.3565C13.5728 14.735 13.4035 15.0891 13.1258 15.3477C12.8482 15.6063 12.4829 15.75 12.1035 15.75H5.8965C5.5171 15.75 5.1518 15.6063 4.87416 15.3477C4.59653 15.0891 4.42719 14.735 4.40025 14.3565L3.75 5.25003H14.25ZM11.25 5.25003V3.00003C11.25 2.80112 11.171 2.61035 11.0303 2.4697C10.8897 2.32905 10.6989 2.25003 10.5 2.25003H7.5C7.30109 2.25003 7.11032 2.32905 6.96967 2.4697C6.82902 2.61035 6.75 2.80112 6.75 3.00003V5.25003H11.25Z"
+                                                                        d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
                                                                         stroke="white"
-                                                                        stroke-linecap="round"
+                                                                        stroke-linecap="square"
                                                                         stroke-linejoin="round"
                                                                     />
                                                                 </svg>
@@ -305,7 +299,7 @@ export default function MsgTemplate() {
                         <div className="fixed inset-0" />
                     </Transition.Child>
                     <div className="fixed inset-0 bg-[black]/60 z-[999] overflow-y-auto">
-                        <div className="flex items-start justify-center min-h-screen px-4">
+                        <div className="flex items-center justify-center min-h-screen px-4">
                             <Transition.Child
                                 as={Fragment}
                                 enter="ease-out duration-300"
@@ -408,10 +402,10 @@ export default function MsgTemplate() {
                                             </div>
                                         </form>
                                         <div className="flex justify-end items-center mt-8">
-                                            <button type="button" className="btn btn-outline-danger" onClick={() => setModalEditTemplate(false)}>
+                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalEditTemplate(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModalEditTemplate(false)}>
+                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => setModalEditTemplate(false)}>
                                                 Save
                                             </button>
                                         </div>
@@ -430,7 +424,7 @@ export default function MsgTemplate() {
                         <div className="fixed inset-0" />
                     </Transition.Child>
                     <div className="fixed inset-0 bg-[black]/60 z-[999] overflow-y-auto">
-                        <div className="flex items-start justify-center min-h-screen px-4">
+                        <div className="flex items-center justify-center min-h-screen px-4">
                             <Transition.Child
                                 as={Fragment}
                                 enter="ease-out duration-300"
@@ -512,7 +506,7 @@ export default function MsgTemplate() {
                                             </div>
                                         </form>
                                         <div className="flex justify-end items-center mt-8">
-                                            <button type="button" className="btn btn-outline-danger" onClick={() => setModalAddTemplate(false)}>
+                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddTemplate(false)}>
                                                 Cancel
                                             </button>
                                             <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModalAddTemplate(false)}>
@@ -534,7 +528,7 @@ export default function MsgTemplate() {
                         <div className="fixed inset-0" />
                     </Transition.Child>
                     <div className="fixed inset-0 bg-[black]/60 z-[999] overflow-y-auto">
-                        <div className="flex items-start justify-center min-h-screen px-4">
+                        <div className="flex items-center justify-center min-h-screen px-4">
                             <Transition.Child
                                 as={Fragment}
                                 enter="ease-out duration-300"
@@ -565,18 +559,19 @@ export default function MsgTemplate() {
                                         </button>
                                     </div>
                                     <div className="p-5 flex flex-col justify-center items-center">
-                                        <svg className="my-3" width="40" height="44" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <svg width="30" height="34" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path
                                                 d="M15.333 19.6667V33.6667M24.6663 19.6667V33.6667M1.33301 10.3333H38.6663M36.333 10.3333L34.31 38.6647C34.2262 39.842 33.6994 40.9439 32.8356 41.7483C31.9718 42.5528 30.8353 43 29.655 43H10.3443C9.164 43 8.0275 42.5528 7.16374 41.7483C6.29998 40.9439 5.77315 39.842 5.68934 38.6647L3.66634 10.3333H36.333ZM26.9997 10.3333V3.33333C26.9997 2.71449 26.7538 2.121 26.3163 1.68342C25.8787 1.24583 25.2852 1 24.6663 1H15.333C14.7142 1 14.1207 1.24583 13.6831 1.68342C13.2455 2.121 12.9997 2.71449 12.9997 3.33333V10.3333H26.9997Z"
-                                                stroke="#848080"
+                                                stroke="black"
                                                 stroke-width="2"
                                                 stroke-linecap="round"
                                                 stroke-linejoin="round"
                                             />
                                         </svg>
-                                        <span>Are you sure to delete template ?</span>
-                                        <span>If you delete this template you can’t recover it.</span>
-                                        <div className="flex flex-row mt-3">
+
+                                        <span className="font-bold mt-5">Are you sure ?</span>
+                                        <span className='mb-3'>This operation cannot be undone.</span>
+                                        <div className="flex flex-row mt-5">
                                             <button type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel
                                             </button>

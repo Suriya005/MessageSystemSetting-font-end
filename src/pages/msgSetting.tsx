@@ -212,7 +212,7 @@ const msgSetting = () => {
     useEffect(() => {
         setInitialRecords(() => {
             return rowData.filter((item) => {
-                return item.id.toString().includes(search.toLowerCase()) || item.name.toLowerCase().includes(search.toLowerCase()) || item.status.toLowerCase().includes(search.toLowerCase());
+                return item.id.toString().includes(filter.toLowerCase()) || item.name.toLowerCase().includes(filter.toLowerCase()) || item.status.toLowerCase().includes(filter.toLowerCase());
             });
         });
     }, [filter]);
@@ -227,7 +227,6 @@ const msgSetting = () => {
     const [modalEditChannel, setModalEditChannel] = useState(false);
     const [modalAddChannel, setModalAddChannel] = useState(false);
     const [modalDeleteChannel, setModalDeleteChannel] = useState(false);
-    const [passwordShownChannel, setPasswordShownChannel] = useState(false);
     const [providerSelected, setProviderSelected] = useState<{ value: string; label: string }[]>([]);
     const [dataForEditChannel, setDataForEditChannel] = useState({
         id: '',
@@ -300,7 +299,6 @@ const msgSetting = () => {
     const [modalEditType, setModalEditType] = useState(false);
     const [modalAddType, setModalAddType] = useState(false);
     const [modalDeleteType, setModalDeleteType] = useState(false);
-    const [passwordShownType, setPasswordShownType] = useState(false);
 
     interface IChannel {
         value: string;
@@ -376,7 +374,6 @@ const msgSetting = () => {
     const [modalEditTemplate, setModalEditTemplate] = useState(false);
     const [modalAddTemplate, setModalAddTemplate] = useState(false);
     const [modalDeleteTemplate, setModalDeleteTemplate] = useState(false);
-    const [passwordShownTemplate, setPasswordShownTemplate] = useState(false);
 
     interface IType {
         value: string;
@@ -521,18 +518,20 @@ const msgSetting = () => {
                                     <div className="panel">
                                         <div className="flex items-center justify-end mb-5">
                                             <h5 className="mr-3 font-semibold text-lg dark:text-white-light">
-                                                <button onClick={() => setModalAdd(true)} type="button" className="btn btn-primary">
-                                                    Add
+                                                <button onClick={() => setModalAdd(true)} type="button" className="btn
+                                                bg-[#2684FC] text-white-light hover:bg-[#2684FC] hover:text-white-light">
+                                                
+                                                    + Add new
                                                 </button>
                                             </h5>
                                             <div className=" mr-3">
                                                 <div className="relative">
-                                                    <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
+                                                    <div className="absolute inset-y-0 right-1 pl-5 pr-1 flex items-center pointer-events-none">
                                                         <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path opacity="0.8" d="M1 1L5.44643 3L9.89286 1" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
                                                         </svg>
                                                     </div>
-                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-4">
+                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-5">
                                                         <option selected>Filter</option>
                                                         <option value="active">Active</option>
                                                         <option value="inactive">Inactive</option>
@@ -1054,13 +1053,13 @@ const msgSetting = () => {
                                                 </button>
                                             </h5>
                                             <div className=" mr-3">
-                                                <div className="relative">
-                                                    <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
+                                            <div className="relative">
+                                                    <div className="absolute inset-y-0 right-1 pl-5 pr-1 flex items-center pointer-events-none">
                                                         <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path opacity="0.8" d="M1 1L5.44643 3L9.89286 1" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
                                                         </svg>
                                                     </div>
-                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-4">
+                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-5">
                                                         <option selected>Filter</option>
                                                         <option value="active">Active</option>
                                                         <option value="inactive">Inactive</option>
@@ -1464,13 +1463,13 @@ const msgSetting = () => {
                                                 </button>
                                             </h5>
                                             <div className=" mr-3">
-                                                <div className="relative">
-                                                    <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
+                                            <div className="relative">
+                                                    <div className="absolute inset-y-0 right-1 pl-5 pr-1 flex items-center pointer-events-none">
                                                         <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path opacity="0.8" d="M1 1L5.44643 3L9.89286 1" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
                                                         </svg>
                                                     </div>
-                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-4">
+                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-5">
                                                         <option selected>Filter</option>
                                                         <option value="active">Active</option>
                                                         <option value="inactive">Inactive</option>
@@ -1872,13 +1871,13 @@ const msgSetting = () => {
                                                 </button>
                                             </h5>
                                             <div className=" mr-3">
-                                                <div className="relative">
-                                                    <div className="absolute inset-y-0 right-3 pl-3 flex items-center pointer-events-none">
+                                            <div className="relative">
+                                                    <div className="absolute inset-y-0 right-1 pl-5 pr-1 flex items-center pointer-events-none">
                                                         <svg width="11" height="4" viewBox="0 0 11 4" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path opacity="0.8" d="M1 1L5.44643 3L9.89286 1" stroke="black" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
                                                         </svg>
                                                     </div>
-                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-4">
+                                                    <select id="filter" name="filter" value={filter} onChange={(e) => setFilter(e.target.value)} className="form-input w-auto pr-5">
                                                         <option selected>Filter</option>
                                                         <option value="active">Active</option>
                                                         <option value="inactive">Inactive</option>

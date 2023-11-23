@@ -11,7 +11,8 @@ const routes = [
     },
     {
         path: '/test',
-        element: <MsgSetting />
+        element: <MsgSetting />,
+        layout:'',
     },
 
     

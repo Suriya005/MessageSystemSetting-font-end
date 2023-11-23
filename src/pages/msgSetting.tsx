@@ -13,10 +13,18 @@ import Select from 'react-select';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { em } from '@fullcalendar/core/internal-common';
-import MsgProvider from '../components/msgSystem/provider';
-import MsgChannel from '../components/msgSystem/channel';
-import MsgType from '../components/msgSystem/type';
-import MsgTemplate from '../components/msgSystem/template';
+
+import React from 'react';
+
+// import MsgProvider from '../components/msgSystem/provider';
+// import MsgChannel from '../components/msgSystem/channel';
+// import MsgType from '../components/msgSystem/type';
+// import MsgTemplate from '../components/msgSystem/template';
+// dynamic import
+const MsgProvider = React.lazy(() => import('../components/msgSystem/provider'));
+const MsgChannel = React.lazy(() => import('../components/msgSystem/channel'));
+const MsgType = React.lazy(() => import('../components/msgSystem/type'));
+const MsgTemplate = React.lazy(() => import('../components/msgSystem/template'));
 
 const rowData = [
     {
@@ -146,13 +154,7 @@ const msgSetting = () => {
         dispatch(setPageTitle('Message Setting'));
     });
 
-    const PAGE_SIZES = [10, 20, 30, 50, 100];
-    const [filter, setFilter] = useState('');
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
-    const [initialRecords, setInitialRecords] = useState(rowData);
-    const [recordsData, setRecordsData] = useState(initialRecords);
-    const [search, setSearch] = useState('');
+    
 
     return (
         <div>

@@ -4,6 +4,8 @@ import { Dialog, Transition } from '@headlessui/react';
 import axios from 'axios';
 import { bo } from '@fullcalendar/core/internal-common';
 
+const endpoint = 'http://127.0.0.1:14000'
+
 
 export default function MsgProvider() {
     // Provider zone
@@ -50,7 +52,7 @@ export default function MsgProvider() {
     // service create provider
     const createProvider = async () => {
         try {
-            const response = await axios.post('http://127.0.0.1:3000/api/provider', dataForAddProvider);
+            const response = await axios.post(`${endpoint}/api/provider`, dataForAddProvider);
             console.log(response.data);
             fetchItems();
             setModalAdd(false);
@@ -62,7 +64,7 @@ export default function MsgProvider() {
     // service update provider
     const updateProvider = async () => {
         try {
-            const response = await axios.put(`http://127.0.0.1:3000/api/provider/${dataForEditProvider._id}`, dataForEditProvider);
+            const response = await axios.put(`${endpoint}/api/provider/${dataForEditProvider._id}`, dataForEditProvider);
             console.log(response.data);
             fetchItems();
             setModalEdit(false);
@@ -85,7 +87,7 @@ export default function MsgProvider() {
 
     async function fetchItems() {
         try {
-            const response = await axios.get('http://127.0.0.1:3000/api/providers');
+            const response = await axios.get(`${endpoint}/api/providers`);
             setRowData(response.data);
         } catch (error) {
             console.error('Error fetching data: ', error);

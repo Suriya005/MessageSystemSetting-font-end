@@ -3,78 +3,20 @@ import { useState, useEffect } from 'react';
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import Select from 'react-select';
+import axios from 'axios';
 
 import { DataTable } from 'mantine-datatable';
+import { count } from 'console';
+import { co } from '@fullcalendar/core/internal-common';
 
-const rowData = [
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afa")',
-        name: 'Gmail',
-        desc: 'Personal google email.',
-        credential: {
-            username: 'username1',
-            password: '<PASSWORD>',
-        },
-        status: 'inactive',
-    },
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afb")',
-        name: 'AWS',
-        desc: 'Personal AWS.',
-        credential: {
-            username: 'username2',
-            password: '<PASSWORD>',
-        },
-        status: 'active',
-    },
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afc")',
-        name: 'SendGrid',
-        desc: 'Personal SendGrid.',
-        credential: {
-            username: 'username3',
-            password: '<PASSWORD>',
-        },
-        status: 'active',
-    },
-];
-const rowDataChannel = [
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afb")',
-        name: 'Email',
-        desc: 'Personal email.',
-        providerId: [{
-            id:'ObjectId("654dc88e5fde0679c97f5afa")',
-            name:'Gmail',
-        }],
-        status: 'inactive',
-    },
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afc")',
-        name: 'SMS',
-        desc: 'Personal SMS.',
-        providerId: [{
-            id:'ObjectId("654dc88e5fde0679c97f5afb")',
-            name:'Gmail',
-        }],
-        status: 'active',
-    },
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afd")',
-        name: 'Push',
-        desc: 'Personal Push.',
-        providerId: [{
-            id:'ObjectId("654dc88e5fde0679c97f5afc")',
-            name:'SendGrid',
-        }],
-        status: 'active',
-    },
-];
+
 
 export default function MsgChannel() {
     const PAGE_SIZES = [10, 20, 30, 50, 100];
 
     // Channel zone
+    const [rowData, setRowData] = useState([] as any);
+    const [rowDataChannel, setRowDataChannel] = useState([] as any);
     const [pageChannel, setPageChannel] = useState(1);
     const [pageSizeChannel, setPageSizeChannel] = useState(PAGE_SIZES[0]);
     const [initialRecordsChannel, setInitialRecordsChannel] = useState(rowDataChannel);
@@ -100,18 +42,44 @@ export default function MsgChannel() {
             [name]: value,
         }));
     };
+    const [dataForAddChannel, setDataForAddChannel] = useState({
+        id: '',
+        name: '',
+        desc: '',
+        providerId: [],
+        status: '',
+    } as any);
+
+    // api zone
+
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    async function fetchItems() {
+        try {
+            const response = await axios.get('http://127.0.0.1:3000/api/providers');
+            setRowData(response.data);
+            const responseChannel = await axios.get('http://127.0.0.1:3000/api/channels');
+            setRowDataChannel(responseChannel.data);
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    }
+
     const openEditModalChannel = (data: any) => {
         setProviderSelected([]);
-        rowData.map((item) => {
-            setProviderSelected((providerSelected) => [...providerSelected, { value: item.id, label: item.name }]);
+        rowData.map((item: any) => {
+            setProviderSelected((providerSelected) => [...providerSelected, { value: item._id, label: item.name }]);
         });
         data.status === 'active' ? setStatusToggleChannel(true) : setStatusToggleChannel(false);
         setDataForEditChannel(data);
         setModalEditChannel(true);
     };
+    
     const openAddModalChannel = () => {
-        rowData.map((item) => {
-            setProviderSelected((providerSelected) => [...providerSelected, { value: item.id, label: item.name }]);
+        rowData.map((item: any) => {
+            setProviderSelected((providerSelected) => [...providerSelected, { value: item._id, label: item.name }]);
         });
         setModalAddChannel(true);
     };
@@ -125,7 +93,7 @@ export default function MsgChannel() {
     }, [pageChannel, pageSizeChannel, initialRecordsChannel]);
     useEffect(() => {
         setInitialRecordsChannel(() => {
-            return rowDataChannel.filter((item) => {
+            return rowDataChannel.filter((item: any) => {
                 return (
                     item._id.toString().includes(searchChannel.toLowerCase()) ||
                     item.name.toLowerCase().includes(searchChannel.toLowerCase()) ||
@@ -134,10 +102,10 @@ export default function MsgChannel() {
                 );
             });
         });
-    }, [searchChannel]);
+    }, [searchChannel, rowDataChannel]);
     useEffect(() => {
         setInitialRecordsChannel(() => {
-            return rowDataChannel.filter((item) => {
+            return rowDataChannel.filter((item: any) => {
                 const searchfilter = filterChannel === 'active' ? 'active' : filterChannel === 'inactive' ? 'inactive' : '';
                 if (searchfilter === 'active') {
                     return (
@@ -162,7 +130,7 @@ export default function MsgChannel() {
                 }
             });
         });
-    }, [filterChannel]);
+    }, [filterChannel, rowDataChannel, searchChannel]);
     return (
         <div>
             <div className="active pt-5">
@@ -171,11 +139,7 @@ export default function MsgChannel() {
                         <div className="panel">
                             <div className="flex items-center justify-end mb-5">
                                 <h5 className="mr-3 font-semibold text-lg dark:text-white-light">
-                                    <button
-                                        onClick={() => setModalAddChannel(true)}
-                                        type="button"
-                                        className="btn btn-primary"
-                                    >
+                                    <button onClick={() => setModalAddChannel(true)} type="button" className="btn btn-primary">
                                         + Add new
                                     </button>
                                 </h5>
@@ -212,15 +176,28 @@ export default function MsgChannel() {
                                         { accessor: 'name', title: 'Channel' },
                                         { accessor: 'desc', title: 'Description' },
                                         {
-                                            accessor: 'providerId[0].name',
+                                            accessor: 'providerId',
                                             title: 'Provider',
                                             width: '200px',
+                                            render: (item: any) => {
+                           
+
+                                                return <span>{
+                                                    item.providerId.map((element: any, index:any ) => {
+                                                        return index === item.providerId.length - 1 ? element.name : element.name + ', '
+                                                    })
+                                                }</span>;
+                                                
+                                            
+                                                    
+                                                
+                                            }
                                         },
                                         {
                                             accessor: 'status',
                                             title: 'status',
                                             width: '200px',
-                                            render: ({ status }) => {
+                                            render: ({ status }: any) => {
                                                 if (status === 'active') {
                                                     return <span className="badge badge-outline-success">Active</span>;
                                                 } else if (status === 'inactive') {
@@ -232,7 +209,7 @@ export default function MsgChannel() {
                                                 }
                                             },
                                         },
-                                        
+
                                         {
                                             accessor: 'actions',
                                             title: '',
@@ -243,16 +220,24 @@ export default function MsgChannel() {
                                                     <>
                                                         <div className="flex justify-around">
                                                             <button type="button" onClick={() => openEditModalChannel(item)} className="btn btn-warning py-3">
-                                                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M6.79061 2.54174H2.59307C2.14777 2.54174 1.72071 2.691 1.40583 2.95667C1.09096 3.22235 0.914063 3.58268 0.914062 3.95841V11.7501C0.914063 12.1258 1.09096 12.4861 1.40583 12.7518C1.72071 13.0175 2.14777 13.1667 2.59307 13.1667H11.8276C12.2729 13.1667 12.7 13.0175 13.0149 12.7518C13.3298 12.4861 13.5067 12.1258 13.5067 11.7501V8.20841M12.3196 1.54016C12.4745 1.40485 12.6597 1.29693 12.8646 1.22268C13.0694 1.14843 13.2898 1.10935 13.5127 1.10772C13.7356 1.10608 13.9567 1.14193 14.1631 1.21316C14.3694 1.28439 14.5569 1.38958 14.7145 1.5226C14.8722 1.65561 14.9968 1.81379 15.0813 1.98789C15.1657 2.16199 15.2082 2.34854 15.2062 2.53664C15.2043 2.72475 15.158 2.91064 15.07 3.08348C14.982 3.25632 14.8541 3.41264 14.6937 3.54332L7.48572 9.62507H5.11159V7.62191L12.3196 1.54016Z" stroke="white" stroke-linecap="square" stroke-linejoin="round"/>
-</svg>
-
+                                                                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M6.79061 2.54174H2.59307C2.14777 2.54174 1.72071 2.691 1.40583 2.95667C1.09096 3.22235 0.914063 3.58268 0.914062 3.95841V11.7501C0.914063 12.1258 1.09096 12.4861 1.40583 12.7518C1.72071 13.0175 2.14777 13.1667 2.59307 13.1667H11.8276C12.2729 13.1667 12.7 13.0175 13.0149 12.7518C13.3298 12.4861 13.5067 12.1258 13.5067 11.7501V8.20841M12.3196 1.54016C12.4745 1.40485 12.6597 1.29693 12.8646 1.22268C13.0694 1.14843 13.2898 1.10935 13.5127 1.10772C13.7356 1.10608 13.9567 1.14193 14.1631 1.21316C14.3694 1.28439 14.5569 1.38958 14.7145 1.5226C14.8722 1.65561 14.9968 1.81379 15.0813 1.98789C15.1657 2.16199 15.2082 2.34854 15.2062 2.53664C15.2043 2.72475 15.158 2.91064 15.07 3.08348C14.982 3.25632 14.8541 3.41264 14.6937 3.54332L7.48572 9.62507H5.11159V7.62191L12.3196 1.54016Z"
+                                                                        stroke="white"
+                                                                        stroke-linecap="square"
+                                                                        stroke-linejoin="round"
+                                                                    />
+                                                                </svg>
                                                             </button>
                                                             <button type="button" onClick={() => setModalDeleteChannel(true)} className="btn btn-danger py-3">
-                                                            <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z" stroke="white" stroke-linecap="square" stroke-linejoin="round"/>
-</svg>
-
+                                                                <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
+                                                                        stroke="white"
+                                                                        stroke-linecap="square"
+                                                                        stroke-linejoin="round"
+                                                                    />
+                                                                </svg>
                                                             </button>
                                                         </div>
                                                     </>
@@ -519,7 +504,7 @@ export default function MsgChannel() {
                                         </svg>
 
                                         <span className="font-bold mt-5">Are you sure ?</span>
-                                        <span className='mb-3'>This operation cannot be undone.</span>
+                                        <span className="mb-3">This operation cannot be undone.</span>
                                         <div className="flex flex-row mt-5">
                                             <button type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel

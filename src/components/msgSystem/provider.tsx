@@ -1,42 +1,13 @@
 import { useEffect, useState, Fragment } from 'react';
 import { DataTable } from 'mantine-datatable';
 import { Dialog, Transition } from '@headlessui/react';
+import axios from 'axios';
+import { bo } from '@fullcalendar/core/internal-common';
 
-const rowData = [
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afa")',
-        name: 'Gmail',
-        desc: 'Personal google email.',
-        credential: {
-            username: 'username1',
-            password: '<PASSWORD>',
-        },
-        status: 'inactive',
-    },
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afb")',
-        name: 'AWS',
-        desc: 'Personal AWS.',
-        credential: {
-            username: 'username2',
-            password: '<PASSWORD>',
-        },
-        status: 'active',
-    },
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afc")',
-        name: 'SendGrid',
-        desc: 'Personal SendGrid.',
-        credential: {
-            username: 'username3',
-            password: '<PASSWORD>',
-        },
-        status: 'active',
-    },
-];
 
 export default function MsgProvider() {
     // Provider zone
+    const [rowData, setRowData] = useState([] as any);
     const PAGE_SIZES = [10, 20, 30, 50, 100];
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
@@ -44,11 +15,12 @@ export default function MsgProvider() {
     const [recordsData, setRecordsData] = useState(initialRecords);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('');
-    const [modal1, setModal1] = useState(false);
+    const [modalEdit, setModalEdit] = useState(false);
     const [modalAdd, setModalAdd] = useState(false);
     const [modalDelete, setModalDelete] = useState(false);
     const [passwordShown, setPasswordShown] = useState(false);
     const [statusToggleProvider, setStatusToggleProvider] = useState(false);
+    const [idForDeleteProvider, setIdForDeleteProvider] = useState('' as any);
     const [dataForEditProvider, setDataForEditProvider] = useState({
         id: '',
         name: '',
@@ -59,9 +31,74 @@ export default function MsgProvider() {
         },
         status: '',
     } as any);
+    const [dataForAddProvider, setDataForAddProvider] = useState({
+        name: '',
+        desc: '',
+        credential: {
+            username: '',
+            password: '',
+        },
+        status: 'inactive',
+    } as any);
+
+    // fetch api end point 127.0.0.1:3000/api/providers
+
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    // service create provider
+    const createProvider = async () => {
+        try {
+            const response = await axios.post('http://127.0.0.1:3000/api/provider', dataForAddProvider);
+            console.log(response.data);
+            fetchItems();
+            setModalAdd(false);
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    };
+
+    // service update provider
+    const updateProvider = async () => {
+        try {
+            const response = await axios.put(`http://127.0.0.1:3000/api/provider/${dataForEditProvider._id}`, dataForEditProvider);
+            console.log(response.data);
+            fetchItems();
+            setModalEdit(false);
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    }
+
+    // service delete provider
+    const deleteProvider = async () => {
+        try {
+            const response = await axios.delete(` ๆ${idForDeleteProvider}`)
+            console.log(response.data);
+            fetchItems();
+            setModalDelete(false);
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    }
+
+    async function fetchItems() {
+        try {
+            const response = await axios.get('http://127.0.0.1:3000/api/providers');
+            setRowData(response.data);
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    }
+
+    const openDeleteButton = (id:any) => {
+        setModalDelete(true);
+        setIdForDeleteProvider(id);
+    }
+
     const handleChangeProvider = (event: any) => {
         const { name, value } = event.target;
-        // if object
         if (name.includes('credential')) {
             const [key, subKey] = name.split(':');
             setDataForEditProvider((dataForEditProvider: any) => ({
@@ -79,10 +116,31 @@ export default function MsgProvider() {
             }));
         }
     };
+
+    const handleChangeAddProvider = (event: any) => {
+        const { name, value } = event.target;
+        if (name.includes('credential')) {
+            const [key, subKey] = name.split(':');
+            setDataForAddProvider((dataForAddProvider: any) => ({
+                ...dataForAddProvider,
+                [key]: {
+                    ...dataForAddProvider[key],
+                    [subKey]: value,
+                },
+            }));
+            return;
+        } else {
+            setDataForAddProvider((dataForAddProvider: any) => ({
+                ...dataForAddProvider,
+                [name]: value,
+            }));
+        }
+    };
+
     const openEditModal = (data: any) => {
         data.status === 'active' ? setStatusToggleProvider(true) : setStatusToggleProvider(false);
         setDataForEditProvider(data);
-        setModal1(true);
+        setModalEdit(true);
     };
 
     const togglePasswordVisibility = () => {
@@ -97,32 +155,43 @@ export default function MsgProvider() {
         setRecordsData([...initialRecords.slice(from, to)]);
     }, [page, pageSize, initialRecords]);
     useEffect(() => {
-        setInitialRecords(() => {
-            return rowData.filter((item) => {
-                return item.id.toString().includes(search.toLowerCase()) || item.name.toLowerCase().includes(search.toLowerCase()) || item.status.toLowerCase().includes(search.toLowerCase());
+        if (rowData !== undefined) {
+            setInitialRecords(() => {
+                return rowData.filter((item: any) => {
+                    return item._id.toString().includes(search.toLowerCase()) || item.name.toLowerCase().includes(search.toLowerCase()) || item.status.toLowerCase().includes(search.toLowerCase());
+                });
             });
-        });
-    }, [search]);
+        } else {
+        }
+    }, [search, rowData]);
     useEffect(() => {
-        setInitialRecords(() => {
-            return rowData.filter((item) => {
-                const searchfilter = filter === 'active' ? 'active' : filter === 'inactive' ? 'inactive' : '';
-                if (searchfilter === 'active') {
-                    return (
-                        (item.id.toString().includes(search.toLowerCase()) || item.name.toLowerCase().includes(search.toLowerCase()) || item.status.toLowerCase().includes(search.toLowerCase())) &&
-                        item.status === 'active'
-                    );
-                } else if (searchfilter === 'inactive') {
-                    return (
-                        (item.id.toString().includes(search.toLowerCase()) || item.name.toLowerCase().includes(search.toLowerCase()) || item.status.toLowerCase().includes(search.toLowerCase())) &&
-                        item.status === 'inactive'
-                    );
-                } else {
-                    return item.id.toString().includes(search.toLowerCase()) || item.name.toLowerCase().includes(search.toLowerCase()) || item.status.toLowerCase().includes(search.toLowerCase());
-                }
+        if (rowData !== undefined) {
+            setInitialRecords(() => {
+                return rowData.filter((item: any) => {
+                    const searchfilter = filter === 'active' ? 'active' : filter === 'inactive' ? 'inactive' : '';
+                    if (searchfilter === 'active') {
+                        return (
+                            (item._id.toString().includes(search.toLowerCase()) ||
+                                item.name.toLowerCase().includes(search.toLowerCase()) ||
+                                item.status.toLowerCase().includes(search.toLowerCase())) &&
+                            item.status === 'active'
+                        );
+                    } else if (searchfilter === 'inactive') {
+                        return (
+                            (item._id.toString().includes(search.toLowerCase()) ||
+                                item.name.toLowerCase().includes(search.toLowerCase()) ||
+                                item.status.toLowerCase().includes(search.toLowerCase())) &&
+                            item.status === 'inactive'
+                        );
+                    } else {
+                        return item._id.toString().includes(search.toLowerCase()) || item.name.toLowerCase().includes(search.toLowerCase()) || item.status.toLowerCase().includes(search.toLowerCase());
+                    }
+                });
             });
-        });
-    }, [filter]);
+        } else {
+        }
+    }, [filter, rowData]);
+
     return (
         <>
             <div className="active pt-5">
@@ -171,7 +240,7 @@ export default function MsgProvider() {
                                             accessor: 'status',
                                             title: 'status',
                                             width: '200px',
-                                            render: ({ status }) => {
+                                            render: ({ status }: any) => {
                                                 if (status === 'active') {
                                                     return <span className="badge badge-outline-success">Active</span>;
                                                 } else if (status === 'inactive') {
@@ -202,7 +271,7 @@ export default function MsgProvider() {
                                                                     />
                                                                 </svg>
                                                             </button>
-                                                            <button type="button" onClick={() => setModalDelete(true)} className="btn btn-danger py-3">
+                                                            <button type="button" onClick={() => openDeleteButton(item._id)} className="btn btn-danger py-3">
                                                                 <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                     <path
                                                                         d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
@@ -236,8 +305,8 @@ export default function MsgProvider() {
             {/* modal zone */}
 
             {/* edit */}
-            <Transition appear show={modal1} as={Fragment}>
-                <Dialog as="div" open={modal1} onClose={() => setModal1(false)}>
+            <Transition appear show={modalEdit} as={Fragment}>
+                <Dialog as="div" open={modalEdit} onClose={() => setModalEdit(false)}>
                     <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
                         <div className="fixed inset-0" />
                     </Transition.Child>
@@ -255,22 +324,6 @@ export default function MsgProvider() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-hidden my-8 w-full max-w-xl text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold">Edit Provider</div>
-                                        <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModal1(false)}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
                                     </div>
 
                                     <div className="p-5">
@@ -375,7 +428,10 @@ export default function MsgProvider() {
                                                             className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                                                             id="custom_switch_checkbox1"
                                                             checked={statusToggleProvider}
-                                                            onChange={() => setStatusToggleProvider(!statusToggleProvider)}
+                                                            onChange={() => {
+                                                                setStatusToggleProvider(!statusToggleProvider)
+                                                                dataForEditProvider.status = statusToggleProvider ? 'inactive' : 'active'
+                                                            }}
                                                         />
                                                         <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full before:bg-[url(/assets/images/close.svg)] before:bg-no-repeat before:bg-center peer-checked:before:left-7 peer-checked:before:bg-[url(/assets/images/checked.svg)] peer-checked:border-success peer-checked:before:bg-success before:transition-all before:duration-300"></span>
                                                     </label>
@@ -385,10 +441,10 @@ export default function MsgProvider() {
                                         </form>
 
                                         <div className="flex justify-end items-center mt-8">
-                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModal1(false)}>
+                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalEdit(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => setModal1(false)}>
+                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateProvider()}>
                                                 Save
                                             </button>
                                         </div>
@@ -420,33 +476,32 @@ export default function MsgProvider() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-hidden my-8 w-full max-w-xl text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold">Add Provider</div>
-                                        <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalAdd(false)}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
                                     </div>
 
                                     <div className="p-5">
                                         <form>
                                             <div className="flex items-center justify-end my-4 mr-5">
                                                 <label htmlFor="">Provider</label>
-                                                <input type="text" placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                <input
+                                                    name="name"
+                                                    onChange={handleChangeAddProvider}
+                                                    value={dataForAddProvider.name}
+                                                    type="text"
+                                                    placeholder=""
+                                                    className="w-96 ml-5 form-input text-base"
+                                                    required
+                                                />
                                             </div>
                                             <div className="flex items-start justify-end my-4 mr-5">
                                                 <label htmlFor="">Description</label>
-                                                <textarea placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                <textarea
+                                                    name="desc"
+                                                    onChange={handleChangeAddProvider}
+                                                    value={dataForAddProvider.desc}
+                                                    placeholder=""
+                                                    className="w-96 ml-5 form-input text-base"
+                                                    required
+                                                />
                                             </div>
 
                                             <div className="relative border-2 p-5 mt-5 form-input">
@@ -455,7 +510,15 @@ export default function MsgProvider() {
                                                     <label className="text-base text-gray-700" htmlFor="">
                                                         Username
                                                     </label>
-                                                    <input type="text" placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                    <input
+                                                        name="credential:username"
+                                                        onChange={handleChangeAddProvider}
+                                                        value={dataForAddProvider.credential.username}
+                                                        type="text"
+                                                        placeholder=""
+                                                        className="w-96 ml-5 form-input text-base"
+                                                        required
+                                                    />
                                                 </div>
 
                                                 <div className="flex items-center justify-end my-4">
@@ -463,7 +526,14 @@ export default function MsgProvider() {
                                                         Password
                                                     </label>
                                                     <div className="mt-1 relative rounded-md shadow-sm">
-                                                        <input type={passwordShown ? 'text' : 'password'} required className="w-96 ml-5 form-input text-base" />
+                                                        <input
+                                                            name="credential:password"
+                                                            onChange={handleChangeAddProvider}
+                                                            value={dataForAddProvider.credential.password}
+                                                            type={passwordShown ? 'text' : 'password'}
+                                                            required
+                                                            className="w-96 ml-5 form-input text-base"
+                                                        />
                                                         <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
                                                             {passwordShown ? (
                                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -509,11 +579,15 @@ export default function MsgProvider() {
                                                 <div className="w-96 ml-5 flex items-center">
                                                     <label className="w-12 h-6 relative">
                                                         <input
+                                                            name="status"
                                                             type="checkbox"
                                                             className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                                                             id="custom_switch_checkbox1"
                                                             checked={statusToggleProvider}
-                                                            onClick={() => setStatusToggleProvider(!statusToggleProvider)}
+                                                            onClick={() => {
+                                                                setStatusToggleProvider(!statusToggleProvider);
+                                                                setDataForAddProvider({ ...dataForAddProvider, status: !statusToggleProvider ? 'active' : 'inactive' });
+                                                            }}
                                                         />
                                                         <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full before:bg-[url(/assets/images/close.svg)] before:bg-no-repeat before:bg-center peer-checked:before:left-7 peer-checked:before:bg-[url(/assets/images/checked.svg)] peer-checked:border-success peer-checked:before:bg-success before:transition-all before:duration-300"></span>
                                                     </label>
@@ -526,7 +600,7 @@ export default function MsgProvider() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAdd(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => setModalAdd(false)}>
+                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => createProvider()}>
                                                 Save
                                             </button>
                                         </div>
@@ -558,22 +632,6 @@ export default function MsgProvider() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-hidden my-8 w-full max-w-md text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5">
                                         <div className="text-lg font-bold"></div>
-                                        <button type="button" className="text-white-dark hover:text-dark pt-2" onClick={() => setModalDelete(false)}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
                                     </div>
                                     <div className="p-5 flex flex-col justify-center items-center">
                                         <svg width="30" height="34" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -587,12 +645,12 @@ export default function MsgProvider() {
                                         </svg>
 
                                         <span className="font-bold mt-5">Are you sure ?</span>
-                                        <span className='mb-3'>This operation cannot be undone.</span>
+                                        <span className="mb-3">This operation cannot be undone.</span>
                                         <div className="flex flex-row mt-5">
-                                            <button type="button" className="btn btn-outline-dark mx-2">
+                                            <button onClick={() => setModalDelete(false)} type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel
                                             </button>
-                                            <button type="button" className="btn btn-danger mx-2">
+                                            <button onClick={() => deleteProvider()} type="button" className="btn btn-danger mx-2">
                                                 Yes, I’m sure
                                             </button>
                                         </div>

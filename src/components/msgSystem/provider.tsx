@@ -4,8 +4,10 @@ import { Dialog, Transition } from '@headlessui/react';
 import axios from 'axios';
 import { bo } from '@fullcalendar/core/internal-common';
 
-const endpoint = 'http://127.0.0.1:14000'
 
+// const endpoint = 'https://asset-api.xbkk.site/contact'
+// const endpoint = 'http://127.0.0.1:14000'
+const endpoint = import.meta.env.VITE_API_ENDPOINT;
 
 export default function MsgProvider() {
     // Provider zone
@@ -52,8 +54,7 @@ export default function MsgProvider() {
     // service create provider
     const createProvider = async () => {
         try {
-            const response = await axios.post(`${endpoint}/api/provider`, dataForAddProvider);
-            console.log(response.data);
+            const response = await axios.post(`${endpoint}/provider`, dataForAddProvider);
             fetchItems();
             setModalAdd(false);
         } catch (error) {
@@ -64,8 +65,15 @@ export default function MsgProvider() {
     // service update provider
     const updateProvider = async () => {
         try {
-            const response = await axios.put(`${endpoint}/api/provider/${dataForEditProvider._id}`, dataForEditProvider);
-            console.log(response.data);
+            const response = await axios.patch(`${endpoint}/provider?id=${dataForEditProvider._id}`, {
+                name: dataForEditProvider.name,
+                desc: dataForEditProvider.desc,
+                credential: {
+                    username: dataForEditProvider.credential.username,
+                    password: dataForEditProvider.credential.password,
+                },
+                status: dataForEditProvider.status,
+            });
             fetchItems();
             setModalEdit(false);
         } catch (error) {
@@ -76,8 +84,7 @@ export default function MsgProvider() {
     // service delete provider
     const deleteProvider = async () => {
         try {
-            const response = await axios.delete(` ๆ${idForDeleteProvider}`)
-            console.log(response.data);
+            const response = await axios.delete(`${endpoint}/provider/?id=${idForDeleteProvider}`)
             fetchItems();
             setModalDelete(false);
         } catch (error) {
@@ -87,8 +94,8 @@ export default function MsgProvider() {
 
     async function fetchItems() {
         try {
-            const response = await axios.get(`${endpoint}/api/providers`);
-            setRowData(response.data);
+            const response = await axios.get(`${endpoint}/providers`);
+            setRowData(response.data.resulte);
         } catch (error) {
             console.error('Error fetching data: ', error);
         }

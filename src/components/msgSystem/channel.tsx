@@ -70,9 +70,9 @@ export default function MsgChannel() {
     async function fetchItems() {
         try {
             const response = await axios.get(`${endpoint}/providers`);
-            setRowData(response.data.resulte);
+            setRowData(response.data.result);
             const responseChannel = await axios.get(`${endpoint}/channels`);
-            setRowDataChannel(responseChannel.data.resulte);
+            setRowDataChannel(responseChannel.data.result);
         } catch (error) {
             console.error('Error fetching data: ', error);
         }

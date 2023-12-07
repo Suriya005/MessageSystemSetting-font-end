@@ -23,7 +23,7 @@ export default function MsgProvider() {
     const [modalAdd, setModalAdd] = useState(false);
     const [modalDelete, setModalDelete] = useState(false);
     const [passwordShown, setPasswordShown] = useState(false);
-    const [statusToggleProvider, setStatusToggleProvider] = useState(false);
+    const [statusToggleProvider, setStatusToggleProvider] = useState(true);
     const [idForDeleteProvider, setIdForDeleteProvider] = useState('' as any);
     const [dataForEditProvider, setDataForEditProvider] = useState({
         id: '',
@@ -46,6 +46,7 @@ export default function MsgProvider() {
     } as any);
 
     // fetch api end point 127.0.0.1:3000/api/providers
+    
 
     useEffect(() => {
         fetchItems();
@@ -209,7 +210,19 @@ export default function MsgProvider() {
                         <div className="panel">
                             <div className="flex items-center justify-end mb-5">
                                 <h5 className="mr-3 font-semibold text-lg dark:text-white-light">
-                                    <button onClick={() => setModalAdd(true)} type="button" className="btn btn-primary">
+                                    <button onClick={() => {
+                                        setModalAdd(true)
+                                        setDataForAddProvider({
+                                            name: '',
+                                            desc: '',
+                                            credential: {
+                                                username: '',
+                                                password: '',
+                                            },
+                                            status: 'active',
+                                        })
+                                        setStatusToggleProvider(true)
+                                    }} type="button" className="btn btn-primary">
                                         + Add new
                                     </button>
                                 </h5>

@@ -7,11 +7,12 @@ import axios from 'axios';
 
 import { DataTable } from 'mantine-datatable';
 import { count } from 'console';
-import { co } from '@fullcalendar/core/internal-common';
-
-
+import { co, s } from '@fullcalendar/core/internal-common';
 
 export default function MsgChannel() {
+    // const endpoint = 'http://127.0.0.1:14000';
+    const endpoint = import.meta.env.VITE_API_ENDPOINT;
+
     const PAGE_SIZES = [10, 20, 30, 50, 100];
 
     // Channel zone
@@ -27,6 +28,10 @@ export default function MsgChannel() {
     const [modalAddChannel, setModalAddChannel] = useState(false);
     const [modalDeleteChannel, setModalDeleteChannel] = useState(false);
     const [providerSelected, setProviderSelected] = useState<{ value: string; label: string }[]>([]);
+    const [statusToggleChannel, setStatusToggleChannel] = useState(true);
+
+    // form validation zone
+    const [idForDeleteChannel, setIdForDeleteChannel] = useState('' as any);
     const [dataForEditChannel, setDataForEditChannel] = useState({
         id: '',
         name: '',
@@ -34,7 +39,12 @@ export default function MsgChannel() {
         providerId: [],
         status: '',
     } as any);
-    const [statusToggleChannel, setStatusToggleChannel] = useState(false);
+    const [dataForAddChannel, setDataForAddChannel] = useState({
+        name: '',
+        desc: '',
+        providerId: [],
+        status: 'active',
+    } as any);
     const handleChangeChannel = (event: any) => {
         const { name, value } = event.target;
         setDataForEditChannel((dataForEditChannel: any) => ({
@@ -42,13 +52,14 @@ export default function MsgChannel() {
             [name]: value,
         }));
     };
-    const [dataForAddChannel, setDataForAddChannel] = useState({
-        id: '',
-        name: '',
-        desc: '',
-        providerId: [],
-        status: '',
-    } as any);
+
+    const handleChangeAddChannel = (event: any) => {
+        const { name, value } = event.target;
+        setDataForAddChannel((dataForAddChannel: any) => ({
+            ...dataForAddChannel,
+            [name]: value,
+        }));
+    };
 
     // api zone
 
@@ -58,14 +69,56 @@ export default function MsgChannel() {
 
     async function fetchItems() {
         try {
-            const response = await axios.get('http://127.0.0.1:3000/api/providers');
-            setRowData(response.data);
-            const responseChannel = await axios.get('http://127.0.0.1:3000/api/channels');
-            setRowDataChannel(responseChannel.data);
+            const response = await axios.get(`${endpoint}/providers`);
+            setRowData(response.data.resulte);
+            const responseChannel = await axios.get(`${endpoint}/channels`);
+            setRowDataChannel(responseChannel.data.resulte);
         } catch (error) {
             console.error('Error fetching data: ', error);
         }
     }
+
+    const createChannel = async () => {
+        try {
+            const response = await axios.post(`${endpoint}/channel`, dataForAddChannel);
+            setModalAddChannel(false);
+            fetchItems();
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    };
+
+    const updateChannel = async () => {
+        try {
+            const dataForUpdate = {
+                ...dataForEditChannel,
+                providerId: dataForEditChannel.providerId.map((item: any) => {
+                    return item._id;
+                }),
+            };
+            const response = await axios.patch(`${endpoint}/channel?id=${dataForUpdate._id}`, dataForUpdate);
+            setModalEditChannel(false);
+            fetchItems();
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    };
+
+    const deleteChannel = async () => {
+        try {
+            const response = await axios.delete(`${endpoint}/channel?id=${idForDeleteChannel}`);
+            setModalDeleteChannel(false);
+            fetchItems();
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    };
+
+    // modal zone
+    const openDeleteModalChannel = (id: any) => {
+        setIdForDeleteChannel(id);
+        setModalDeleteChannel(true);
+    };
 
     const openEditModalChannel = (data: any) => {
         setProviderSelected([]);
@@ -76,13 +129,16 @@ export default function MsgChannel() {
         setDataForEditChannel(data);
         setModalEditChannel(true);
     };
-    
+
     const openAddModalChannel = () => {
+        setStatusToggleChannel(true);
+        setProviderSelected([]);
         rowData.map((item: any) => {
             setProviderSelected((providerSelected) => [...providerSelected, { value: item._id, label: item.name }]);
         });
         setModalAddChannel(true);
     };
+
     useEffect(() => {
         setPageChannel(1);
     }, [pageSizeChannel]);
@@ -139,7 +195,7 @@ export default function MsgChannel() {
                         <div className="panel">
                             <div className="flex items-center justify-end mb-5">
                                 <h5 className="mr-3 font-semibold text-lg dark:text-white-light">
-                                    <button onClick={() => setModalAddChannel(true)} type="button" className="btn btn-primary">
+                                    <button onClick={() => openAddModalChannel()} type="button" className="btn btn-primary">
                                         + Add new
                                     </button>
                                 </h5>
@@ -180,18 +236,14 @@ export default function MsgChannel() {
                                             title: 'Provider',
                                             width: '200px',
                                             render: (item: any) => {
-                           
-
-                                                return <span>{
-                                                    item.providerId.map((element: any, index:any ) => {
-                                                        return index === item.providerId.length - 1 ? element.name : element.name + ', '
-                                                    })
-                                                }</span>;
-                                                
-                                            
-                                                    
-                                                
-                                            }
+                                                return (
+                                                    <span>
+                                                        {item.providerId.map((element: any, index: any) => {
+                                                            return index === item.providerId.length - 1 ? element.name : element.name + ', ';
+                                                        })}
+                                                    </span>
+                                                );
+                                            },
                                         },
                                         {
                                             accessor: 'status',
@@ -229,7 +281,13 @@ export default function MsgChannel() {
                                                                     />
                                                                 </svg>
                                                             </button>
-                                                            <button type="button" onClick={() => setModalDeleteChannel(true)} className="btn btn-danger py-3">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    openDeleteModalChannel(item._id);
+                                                                }}
+                                                                className="btn btn-danger py-3"
+                                                            >
                                                                 <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                     <path
                                                                         d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
@@ -282,22 +340,7 @@ export default function MsgChannel() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold">Edit Channel</div>
-                                        <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalAddChannel(false)}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
+                                       
                                     </div>
 
                                     <div className="p-5">
@@ -329,7 +372,22 @@ export default function MsgChannel() {
                                             <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
                                                 <label htmlFor="">Provider</label>
                                                 <div className="w-96 ml-5 text-base">
-                                                    <Select defaultValue={providerSelected[0]} options={providerSelected} isMulti isSearchable={false} />
+                                                    <Select
+                                                        onChange={(e) =>
+                                                            setDataForEditChannel({
+                                                                ...dataForEditChannel,
+                                                                providerId: e.map((item: any) => {
+                                                                    return { _id: item.value, name: item.label };
+                                                                }),
+                                                            })
+                                                        }
+                                                        defaultValue={dataForEditChannel.providerId.map((item: any) => {
+                                                            return { label: item.name, value: item._id };
+                                                        })}
+                                                        options={providerSelected}
+                                                        isMulti
+                                                        isSearchable={false}
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="flex items-start justify-end my-4 mr-5">
@@ -351,10 +409,10 @@ export default function MsgChannel() {
                                         </form>
 
                                         <div className="flex justify-end items-center mt-8">
-                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddChannel(false)}>
+                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setDataForEditChannel(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => setModalAddChannel(false)}>
+                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateChannel()}>
                                                 Save
                                             </button>
                                         </div>
@@ -386,39 +444,45 @@ export default function MsgChannel() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold">Add Channel</div>
-                                        <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalAddChannel(false)}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
+                                        
                                     </div>
 
                                     <div className="p-5">
                                         <form>
                                             <div className="flex items-center justify-end my-4 mr-5">
                                                 <label htmlFor="">Channel</label>
-                                                <input type="text" placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                <input
+                                                    value={dataForAddChannel.name}
+                                                    onChange={handleChangeAddChannel}
+                                                    name="name"
+                                                    type="text"
+                                                    placeholder=""
+                                                    className="w-96 ml-5 form-input text-base"
+                                                    required
+                                                />
                                             </div>
                                             <div className="flex items-start justify-end my-4 mr-5">
                                                 <label htmlFor="">Description</label>
-                                                <textarea placeholder="" className="w-96 ml-5 form-input text-base" required />
+                                                <textarea
+                                                    value={dataForAddChannel.desc}
+                                                    onChange={handleChangeAddChannel}
+                                                    name="desc"
+                                                    placeholder=""
+                                                    className="w-96 ml-5 form-input text-base"
+                                                    required
+                                                />
                                             </div>
 
                                             <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
                                                 <label htmlFor="">Provider</label>
                                                 <div className="w-96 ml-5 text-base">
-                                                    <Select defaultValue={providerSelected[0]} options={providerSelected} isMulti isSearchable={false} />
+                                                    <Select
+                                                        onChange={(e) => setDataForAddChannel({ ...dataForAddChannel, providerId: e.map((item: any) => item.value) })}
+                                                        defaultValue={providerSelected[0]}
+                                                        options={providerSelected}
+                                                        isMulti
+                                                        isSearchable={false}
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="flex items-start justify-end my-4 mr-5">
@@ -430,7 +494,10 @@ export default function MsgChannel() {
                                                             className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                                                             id="custom_switch_checkbox1"
                                                             checked={statusToggleChannel}
-                                                            onChange={() => setStatusToggleChannel(!statusToggleChannel)}
+                                                            onChange={() => {
+                                                                setStatusToggleChannel(!statusToggleChannel);
+                                                                setDataForAddChannel({ ...dataForAddChannel, status: !statusToggleChannel ? 'active' : 'inactive' });
+                                                            }}
                                                         />
                                                         <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full before:bg-[url(/assets/images/close.svg)] before:bg-no-repeat before:bg-center peer-checked:before:left-7 peer-checked:before:bg-[url(/assets/images/checked.svg)] peer-checked:border-success peer-checked:before:bg-success before:transition-all before:duration-300"></span>
                                                     </label>
@@ -443,7 +510,7 @@ export default function MsgChannel() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddChannel(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => setModalAddChannel(false)}>
+                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => createChannel()}>
                                                 Save
                                             </button>
                                         </div>
@@ -475,22 +542,7 @@ export default function MsgChannel() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-hidden my-8 w-full max-w-md text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold"></div>
-                                        <button type="button" className="text-white-dark hover:text-dark" onClick={() => setModalDeleteChannel(false)}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
+                                        
                                     </div>
                                     <div className="p-5 flex flex-col justify-center items-center">
                                         <svg width="30" height="34" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -506,10 +558,10 @@ export default function MsgChannel() {
                                         <span className="font-bold mt-5">Are you sure ?</span>
                                         <span className="mb-3">This operation cannot be undone.</span>
                                         <div className="flex flex-row mt-5">
-                                            <button type="button" className="btn btn-outline-dark mx-2">
+                                            <button onClick={() => setModalDeleteChannel(false)} type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel
                                             </button>
-                                            <button type="button" className="btn btn-danger mx-2">
+                                            <button onClick={() => deleteChannel()} type="button" className="btn btn-danger mx-2">
                                                 Yes, I’m sure
                                             </button>
                                         </div>

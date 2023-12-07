@@ -96,7 +96,7 @@ export default function MsgProvider() {
     async function fetchItems() {
         try {
             const response = await axios.get(`${endpoint}/providers`);
-            setRowData(response.data.resulte);
+            setRowData(response.data.result);
         } catch (error) {
             console.error('Error fetching data: ', error);
         }

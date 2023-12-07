@@ -132,6 +132,12 @@ export default function MsgChannel() {
 
     const openAddModalChannel = () => {
         setStatusToggleChannel(true);
+        setDataForAddChannel({
+            name: '',
+            desc: '',
+            providerId: [],
+            status: 'active',
+        });
         setProviderSelected([]);
         rowData.map((item: any) => {
             setProviderSelected((providerSelected) => [...providerSelected, { value: item._id, label: item.name }]);
@@ -478,7 +484,6 @@ export default function MsgChannel() {
                                                 <div className="w-96 ml-5 text-base">
                                                     <Select
                                                         onChange={(e) => setDataForAddChannel({ ...dataForAddChannel, providerId: e.map((item: any) => item.value) })}
-                                                        defaultValue={providerSelected[0]}
                                                         options={providerSelected}
                                                         isMulti
                                                         isSearchable={false}

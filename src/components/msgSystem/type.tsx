@@ -4,59 +4,65 @@ import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import Select from 'react-select';
 import { DataTable } from 'mantine-datatable';
+import axios from 'axios';
 
-const rowDataChannel = [
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afb")',
-        name: 'Email',
-        desc: 'Personal email.',
-        providerId: ['ObjectId("654dc88e5fde0679c97f5afa")'],
-        status: 'inactive',
-    },
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afc")',
-        name: 'SMS',
-        desc: 'Personal SMS.',
-        providerId: ['ObjectId("654dc88e5fde0679c97f5afb")'],
-        status: 'active',
-    },
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afd")',
-        name: 'Push',
-        desc: 'Personal Push.',
-        providerId: ['ObjectId("654dc88e5fde0679c97f5afc")'],
-        status: 'active',
-    },
-];
+const endpoint = 'http://127.0.0.1:14000';
+// const endpoint = import.meta.env.VITE_API_ENDPOINT;
 
-const rowDataType = [
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afb")',
-        name: 'Login alert',
-        desc: 'Send email notification when login success.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afa")',
-        msgChannel_name: 'Email',
-        status: 'inactive',
-    },
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afc")',
-        name: 'Forgot password alert',
-        desc: 'Send email notification when forgot password success.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afb")',
-        msgChannel_name: 'SMS',
-        status: 'active',
-    },
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afd")',
-        name: 'Contact us',
-        desc: 'Send email notification when contact us.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afc")',
-        msgChannel_name: 'Push',
-        status: 'active',
-    },
-];
+// const rowDataChannel = [
+//     {
+//         _id: 'ObjectId("654dc95d5fde0679c97f5afb")',
+//         name: 'Email',
+//         desc: 'Personal email.',
+//         providerId: ['ObjectId("654dc88e5fde0679c97f5afa")'],
+//         status: 'inactive',
+//     },
+//     {
+//         _id: 'ObjectId("654dc95d5fde0679c97f5afc")',
+//         name: 'SMS',
+//         desc: 'Personal SMS.',
+//         providerId: ['ObjectId("654dc88e5fde0679c97f5afb")'],
+//         status: 'active',
+//     },
+//     {
+//         _id: 'ObjectId("654dc95d5fde0679c97f5afd")',
+//         name: 'Push',
+//         desc: 'Personal Push.',
+//         providerId: ['ObjectId("654dc88e5fde0679c97f5afc")'],
+//         status: 'active',
+//     },
+// ];
+
+// const rowDataType = [
+//     {
+//         id: 'ObjectId("654dc95d5fde0679c97f5afb")',
+//         name: 'Login alert',
+//         desc: 'Send email notification when login success.',
+//         msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afa")',
+//         msgChannel_name: 'Email',
+//         status: 'inactive',
+//     },
+//     {
+//         id: 'ObjectId("654dc95d5fde0679c97f5afc")',
+//         name: 'Forgot password alert',
+//         desc: 'Send email notification when forgot password success.',
+//         msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afb")',
+//         msgChannel_name: 'SMS',
+//         status: 'active',
+//     },
+//     {
+//         id: 'ObjectId("654dc95d5fde0679c97f5afd")',
+//         name: 'Contact us',
+//         desc: 'Send email notification when contact us.',
+//         msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afc")',
+//         msgChannel_name: 'Push',
+//         status: 'active',
+//     },
+// ];
 
 export default function MsgType() {
+    const [rowDataChannel, setRowDataChannel] = useState([] as any);
+    const [rowDataType, setRowDataType] = useState([] as any);
     const PAGE_SIZES = [10, 20, 30, 50, 100];
     const [filter, setFilter] = useState('');
     const [page, setPage] = useState(1);
@@ -86,6 +92,24 @@ export default function MsgType() {
         status: '',
     } as any);
     const [statusToggleType, setStatusToggleType] = useState(false);
+
+    // api zone
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    async function fetchItems() {
+        try {
+            const responeChannel = await axios.get(`${endpoint}/channels`);
+            const responeType = await axios.get(`${endpoint}/types`);
+            setRowDataChannel(responeChannel.data.result);
+            setRowDataType(responeType.data.result);
+            console.log(rowDataType);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     const handleChangeType = (event: any) => {
         const { name, value } = event.target;
         setDataForEditType((dataForEditType: any) => ({
@@ -96,7 +120,7 @@ export default function MsgType() {
 
     const openEditModalType = (data: any) => {
         setChannelSelected([]);
-        rowDataChannel.map((item) => {
+        rowDataChannel.map((item: any) => {
             setChannelSelected((channelSelected) => [...channelSelected, { value: item._id, label: item.name }]);
         });
         data.status === 'active' ? setStatusToggleType(true) : setStatusToggleType(false);
@@ -104,8 +128,7 @@ export default function MsgType() {
         setModalEditType(true);
     };
     const openAddModalType = () => {
-        rowDataChannel.map((item) => {
-            console.log(item);
+        rowDataChannel.map((item: any) => {
             setChannelSelected((channelSelected) => [...channelSelected, { value: item._id, label: item.name }]);
         });
         setModalAddType(true);
@@ -120,34 +143,34 @@ export default function MsgType() {
     }, [pageType, pageSizeType, initialRecordsType]);
     useEffect(() => {
         setInitialRecordsType(() => {
-            return rowDataType.filter((item) => {
+            return rowDataType.filter((item: any) => {
                 return (
-                    item.id.toString().includes(searchType.toLowerCase()) || item.name.toLowerCase().includes(searchType.toLowerCase()) || item.status.toLowerCase().includes(searchType.toLowerCase())
+                    item._id.toString().includes(searchType.toLowerCase()) || item.name.toLowerCase().includes(searchType.toLowerCase()) || item.status.toLowerCase().includes(searchType.toLowerCase())
                 );
             });
         });
     }, [searchType]);
     useEffect(() => {
         setInitialRecordsType(() => {
-            return rowDataType.filter((item) => {
+            return rowDataType.filter((item: any) => {
                 const searchfilter = filterType === 'active' ? 'active' : filterType === 'inactive' ? 'inactive' : '';
                 if (searchfilter === 'active') {
                     return (
-                        (item.id.toString().includes(searchType.toLowerCase()) ||
+                        (item._id.toString().includes(searchType.toLowerCase()) ||
                             item.name.toLowerCase().includes(searchType.toLowerCase()) ||
                             item.status.toLowerCase().includes(searchType.toLowerCase())) &&
                         item.status === 'active'
                     );
                 } else if (searchfilter === 'inactive') {
                     return (
-                        (item.id.toString().includes(searchType.toLowerCase()) ||
+                        (item._id.toString().includes(searchType.toLowerCase()) ||
                             item.name.toLowerCase().includes(searchType.toLowerCase()) ||
                             item.status.toLowerCase().includes(searchType.toLowerCase())) &&
                         item.status === 'inactive'
                     );
                 } else {
                     return (
-                        item.id.toString().includes(searchType.toLowerCase()) ||
+                        item._id.toString().includes(searchType.toLowerCase()) ||
                         item.name.toLowerCase().includes(searchType.toLowerCase()) ||
                         item.status.toLowerCase().includes(searchType.toLowerCase())
                     );
@@ -164,10 +187,7 @@ export default function MsgType() {
                         <div className="panel">
                             <div className="flex items-center justify-end mb-5">
                                 <h5 className="mr-3 font-semibold text-lg dark:text-white-light">
-                                    <button
-                                        onClick={() => setModalAddType(true)}
-                                        type="button"
-                                        className="btn btn-primary">
+                                    <button onClick={() => setModalAddType(true)} type="button" className="btn btn-primary">
                                         + Add new
                                     </button>
                                 </h5>
@@ -203,12 +223,18 @@ export default function MsgType() {
                                     columns={[
                                         { accessor: 'name', title: 'Type' },
                                         { accessor: 'desc', title: 'Description' },
-                                        { accessor: 'msgChannel_name', title: 'Channel'},
+                                        {
+                                            accessor: 'msgChannelId',
+                                            title: 'Channel',
+                                            render: ({ msgChannelId }: any) => {
+                                                return <>{rowDataChannel.filter((item: any) => item._id === msgChannelId)[0].name}</>;
+                                            },
+                                        },
                                         {
                                             accessor: 'status',
                                             title: 'status',
                                             width: '200px',
-                                            render: ({ status }) => {
+                                            render: ({ status }: any) => {
                                                 if (status === 'active') {
                                                     return <span className="badge badge-outline-success">Active</span>;
                                                 } else if (status === 'inactive') {
@@ -230,16 +256,24 @@ export default function MsgType() {
                                                     <>
                                                         <div className="flex justify-around">
                                                             <button type="button" onClick={() => openEditModalType(item)} className="btn btn-warning py-3">
-                                                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M6.79061 2.54174H2.59307C2.14777 2.54174 1.72071 2.691 1.40583 2.95667C1.09096 3.22235 0.914063 3.58268 0.914062 3.95841V11.7501C0.914063 12.1258 1.09096 12.4861 1.40583 12.7518C1.72071 13.0175 2.14777 13.1667 2.59307 13.1667H11.8276C12.2729 13.1667 12.7 13.0175 13.0149 12.7518C13.3298 12.4861 13.5067 12.1258 13.5067 11.7501V8.20841M12.3196 1.54016C12.4745 1.40485 12.6597 1.29693 12.8646 1.22268C13.0694 1.14843 13.2898 1.10935 13.5127 1.10772C13.7356 1.10608 13.9567 1.14193 14.1631 1.21316C14.3694 1.28439 14.5569 1.38958 14.7145 1.5226C14.8722 1.65561 14.9968 1.81379 15.0813 1.98789C15.1657 2.16199 15.2082 2.34854 15.2062 2.53664C15.2043 2.72475 15.158 2.91064 15.07 3.08348C14.982 3.25632 14.8541 3.41264 14.6937 3.54332L7.48572 9.62507H5.11159V7.62191L12.3196 1.54016Z" stroke="white" stroke-linecap="square" stroke-linejoin="round"/>
-</svg>
-
+                                                                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M6.79061 2.54174H2.59307C2.14777 2.54174 1.72071 2.691 1.40583 2.95667C1.09096 3.22235 0.914063 3.58268 0.914062 3.95841V11.7501C0.914063 12.1258 1.09096 12.4861 1.40583 12.7518C1.72071 13.0175 2.14777 13.1667 2.59307 13.1667H11.8276C12.2729 13.1667 12.7 13.0175 13.0149 12.7518C13.3298 12.4861 13.5067 12.1258 13.5067 11.7501V8.20841M12.3196 1.54016C12.4745 1.40485 12.6597 1.29693 12.8646 1.22268C13.0694 1.14843 13.2898 1.10935 13.5127 1.10772C13.7356 1.10608 13.9567 1.14193 14.1631 1.21316C14.3694 1.28439 14.5569 1.38958 14.7145 1.5226C14.8722 1.65561 14.9968 1.81379 15.0813 1.98789C15.1657 2.16199 15.2082 2.34854 15.2062 2.53664C15.2043 2.72475 15.158 2.91064 15.07 3.08348C14.982 3.25632 14.8541 3.41264 14.6937 3.54332L7.48572 9.62507H5.11159V7.62191L12.3196 1.54016Z"
+                                                                        stroke="white"
+                                                                        stroke-linecap="square"
+                                                                        stroke-linejoin="round"
+                                                                    />
+                                                                </svg>
                                                             </button>
                                                             <button type="button" onClick={() => setModalDeleteType(true)} className="btn btn-danger py-3">
-                                                            <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z" stroke="white" stroke-linecap="square" stroke-linejoin="round"/>
-</svg>
-
+                                                                <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
+                                                                        stroke="white"
+                                                                        stroke-linecap="square"
+                                                                        stroke-linejoin="round"
+                                                                    />
+                                                                </svg>
                                                             </button>
                                                         </div>
                                                     </>
@@ -497,7 +531,7 @@ export default function MsgType() {
                                         </svg>
 
                                         <span className="font-bold mt-5">Are you sure ?</span>
-                                        <span className='mb-3'>This operation cannot be undone.</span>
+                                        <span className="mb-3">This operation cannot be undone.</span>
                                         <div className="flex flex-row mt-5">
                                             <button type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel

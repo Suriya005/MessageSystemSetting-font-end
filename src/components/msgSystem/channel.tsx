@@ -6,8 +6,6 @@ import Select from 'react-select';
 import axios from 'axios';
 
 import { DataTable } from 'mantine-datatable';
-import { count } from 'console';
-import { co, s } from '@fullcalendar/core/internal-common';
 
 export default function MsgChannel() {
     // const endpoint = 'http://127.0.0.1:14000';

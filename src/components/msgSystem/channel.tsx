@@ -196,7 +196,6 @@ export default function MsgChannel() {
             <div className="active pt-5">
                 <div className="grid xl:grid-cols-3 gap-6 mb-6">
                     <div className="panel h-full xl:col-span-3">
-                        <div className="panel">
                             <div className="flex items-center justify-end mb-5">
                                 <h5 className="mr-3 font-semibold text-lg dark:text-white-light">
                                     <button onClick={() => openAddModalChannel()} type="button" className="btn btn-primary">
@@ -319,7 +318,7 @@ export default function MsgChannel() {
                             </div>
                         </div>
                     </div>
-                </div>
+              
             </div>
 
             {/* modal zone */}

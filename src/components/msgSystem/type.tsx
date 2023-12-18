@@ -5,15 +5,11 @@ import { Dialog, Transition } from '@headlessui/react';
 import Select from 'react-select';
 import { DataTable } from 'mantine-datatable';
 import axios from 'axios';
-import { bo, s } from '@fullcalendar/core/internal-common';
 
 // const endpoint = 'http://127.0.0.1:14000';
-const endpoint = import.meta.env.VITE_API_ENDPOINT;
-
-
-
 
 export default function MsgType() {
+    const endpoint = import.meta.env.VITE_API_ENDPOINT;
     const [rowDataChannel, setRowDataChannel] = useState([] as any);
     const [rowDataType, setRowDataType] = useState([] as any);
     const PAGE_SIZES = [10, 20, 30, 50, 100];
@@ -329,7 +325,6 @@ export default function MsgType() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold">Edit Type</div>
-                                        
                                     </div>
                                     <div className="p-5">
                                         <form>
@@ -433,12 +428,11 @@ export default function MsgType() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold">Add Type</div>
-                                        
                                     </div>
                                     <div className="p-5">
                                         <form>
                                             <div className="flex items-center justify-end my-4 mr-5">
-                                                <label htmlFor="">Channel</label>
+                                                <label htmlFor="">Type</label>
                                                 <input
                                                     value={dataForAddType.name}
                                                     onChange={handleChangeAddType}
@@ -528,7 +522,6 @@ export default function MsgType() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-hidden my-8 w-full max-w-md text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold"></div>
-                                       
                                     </div>
                                     <div className="p-5 flex flex-col justify-center items-center">
                                         <svg width="30" height="34" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">

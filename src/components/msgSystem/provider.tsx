@@ -3,11 +3,8 @@ import { DataTable } from 'mantine-datatable';
 import { Dialog, Transition } from '@headlessui/react';
 import axios from 'axios';
 
-// const endpoint = 'https://asset-api.xbkk.site/contact'
-// const endpoint = 'http://127.0.0.1:14000'
-const endpoint = import.meta.env.VITE_API_ENDPOINT;
-
 export default function MsgProvider() {
+    const endpoint = import.meta.env.VITE_API_ENDPOINT;
     // Provider zone
     const [rowData, setRowData] = useState([] as any);
     const PAGE_SIZES = [10, 20, 30, 50, 100];

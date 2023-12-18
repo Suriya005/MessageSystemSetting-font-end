@@ -6,75 +6,17 @@ import Select from 'react-select';
 import { DataTable } from 'mantine-datatable';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
-const rowDataType = [
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afb")',
-        name: 'Login alert',
-        desc: 'Send email notification when login success.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afa")',
-        status: 'inactive',
-    },
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afc")',
-        name: 'Forgot password alert',
-        desc: 'Send email notification when forgot password success.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afb")',
-        status: 'active',
-    },
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afd")',
-        name: 'Contact us',
-        desc: 'Send email notification when contact us.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afc")',
-        status: 'active',
-    },
-];
-const rowTemplateData = [
-    {
-        id: 'ObjectId("654dccf35fde0679c97f5afd")',
-        name: 'Forgot Password',
-        desc: 'Forgot Password Email.',
-        messageTypeId: 'ObjectId("654dc9c65fde0679c97f5afc")',
-        messageTypeName: 'Forgot Password',
-        content: {
-            subject: 'Complete your password reset request',
-            body: `<h1><span class="il">Reset</span>&nbsp;your&nbsp;<span class="il">password</span></h1>
-<p><span class="il">Hi John,</span></p>
-<p><span class="il">Let's reset your password so you can get back to login.</span></p>
-<table style="border-collapse: collapse; width: 100%;" border="1">
-<tbody>
-<tr>
-<td style="width: 700px; text-align: center;"><strong>Reset Password</strong></td>
-</tr>
-</tbody>
-</table>
-<p><span class="il">If you did not ask to reset your password you may want to review your recent account access for any unusual activity.</span></p>
-<p><span class="il">We're here to help if you need it. Visit the Help Center for more info or contact us.<br /></span></p>
-<p><strong><span class="il">The BBO team</span></strong></p>`,
-        },
-        status: 'inactive',
-    },
-    {
-        id: 'ObjectId("654dccf35fde0679c97f5afd")',
-        name: 'Contact Us',
-        desc: 'Contact Us Email.',
-        messageTypeId: 'ObjectId("654dc9c65fde0679c97f5afc")',
-        messageTypeName: 'Contact Us',
-        content: {
-            subject: 'Contact Us Email Subject',
-            body: `<h1><span class="il">Contact</span>&nbsp;Us</h1>`,
-        },
-        status: 'active',
-    },
-];
+import axios from 'axios';
 
 export default function MsgTemplate() {
+    const endpoint = import.meta.env.VITE_API_ENDPOINT;
     const PAGE_SIZES = [10, 20, 30, 50, 100];
     const [filter, setFilter] = useState('');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
     const [search, setSearch] = useState('');
+    const [rowDataType, setRowDataType] = useState([] as any);
+    const [rowTemplateData, setRowTemplateData] = useState([] as any);
 
     // template zone
     const [pageTemplate, setPageTemplate] = useState(1);
@@ -86,14 +28,25 @@ export default function MsgTemplate() {
     const [modalEditTemplate, setModalEditTemplate] = useState(false);
     const [modalAddTemplate, setModalAddTemplate] = useState(false);
     const [modalDeleteTemplate, setModalDeleteTemplate] = useState(false);
+    const [idForDeleteTemplate, setIdForDeleteTemplate] = useState('' as any);
 
     interface IType {
         value: string;
         label: string;
     }
     const [typeSelected, setTypeSelected] = useState<IType[]>([]);
+    const [dataForAddTemplate, setDataForAddTemplate] = useState({
+        name: '',
+        desc: '',
+        messageTypeId: '',
+        content: {
+            subject: '',
+            body: '',
+        },
+        status: '',
+    } as any);
+
     const [dataForEditTemplate, setDataForEditTemplate] = useState({
-        id: '',
         name: '',
         desc: '',
         messageTypeId: '',
@@ -107,18 +60,76 @@ export default function MsgTemplate() {
 
     const [templateValue, setTemplateValue] = useState('');
     const handleChangeTemplate = (event: any) => {
+        if (event.target.name === 'content.subject') {
+            setDataForEditTemplate((dataForEditTemplate: any) => ({
+                ...dataForEditTemplate,
+                content: {
+                    ...dataForEditTemplate.content,
+                    subject: event.target.value,
+                },
+            }));
+        } else {
+            const { name, value } = event.target;
+            setDataForEditTemplate((dataForEditTemplate: any) => ({
+                ...dataForEditTemplate,
+                [name]: value,
+            }));
+        }
+    };
+
+    const handleChangeAddTemplate = (event: any) => {
         const { name, value } = event.target;
-        setDataForEditTemplate((dataForEditTemplate: any) => ({
-            ...dataForEditTemplate,
-            [name]: value,
-        }));
+        if (name === 'content.subject') {
+            setDataForAddTemplate((dataForAddType: any) => ({
+                ...dataForAddType,
+                content: {
+                    ...dataForAddType.content,
+                    subject: value,
+                },
+            }));
+        } else {
+            setDataForAddTemplate((dataForAddType: any) => ({
+                ...dataForAddType,
+                [name]: value,
+            }));
+        }
+    };
+
+    // api zone
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    const fetchItems = async () => {
+        const responseTemplate = await axios.get(`${endpoint}/templates`);
+        setRowTemplateData(responseTemplate.data.result);
+        const responseDataType = await axios.get(`${endpoint}/types`);
+        setRowDataType(responseDataType.data.result);
+    };
+
+    const createTemplate = async () => {
+        const res = await axios.post(`${endpoint}/template`, dataForAddTemplate);
+        setModalAddTemplate(false);
+        fetchItems();
+    };
+
+    const updateTemplate = async () => {
+        const res = await axios.patch(`${endpoint}/template?id=${dataForEditTemplate._id}`, dataForEditTemplate);
+        console.log(res);
+        setModalEditTemplate(false);
+        fetchItems();
+    };
+    const deleteTemplate = async () => {
+        const res = await axios.delete(`${endpoint}/template?id=${idForDeleteTemplate}`);
+        setModalDeleteTemplate(false);
+        fetchItems();
     };
 
     const openEditModalTemplate = (data: any) => {
         setTemplateValue('');
         setTypeSelected([]);
-        rowDataType.map((item) => {
-            setTypeSelected((typeSelected) => [...typeSelected, { value: item.id, label: item.name }]);
+        rowDataType.map((item: any) => {
+            setTypeSelected((typeSelected) => [...typeSelected, { value: item._id, label: item.name }]);
         });
 
         data.status === 'active' ? setStatusToggleTemplate(true) : setStatusToggleTemplate(false);
@@ -126,12 +137,46 @@ export default function MsgTemplate() {
         setModalEditTemplate(true);
     };
     const openAddModalTemplate = () => {
+        setDataForAddTemplate({
+            name: '',
+            desc: '',
+            messageTypeId: '',
+            content: {
+                subject: '',
+                body: '',
+            },
+            status: 'active',
+        });
+        setTypeSelected([]);
+        setStatusToggleTemplate(true);
         setTemplateValue('');
-        rowDataType.map((item) => {
-            setTypeSelected((typeSelected) => [...typeSelected, { value: item.id, label: item.name }]);
+        rowDataType.map((item: any) => {
+            setTypeSelected((typeSelected) => [...typeSelected, { value: item._id, label: item.name }]);
         });
         setModalAddTemplate(true);
     };
+    const setTemplateValueToadd = async (value: any) => {
+        setTemplateValue(value);
+        setDataForAddTemplate((dataForAddType: any) => ({
+            ...dataForAddType,
+            content: {
+                ...dataForAddType.content,
+                body: value,
+            },
+        }));
+    };
+
+    const setTemplateValueToEdit = async (value: any) => {
+        setTemplateValue(value);
+        setDataForEditTemplate((dataForEditTemplate: any) => ({
+            ...dataForEditTemplate,
+            content: {
+                ...dataForEditTemplate.content,
+                body: value,
+            },
+        }));
+    };
+
     useEffect(() => {
         setPageTemplate(1);
     }, [pageSizeTemplate]);
@@ -142,9 +187,9 @@ export default function MsgTemplate() {
     }, [pageTemplate, pageSizeTemplate, initialRecordsTemplate]);
     useEffect(() => {
         setInitialRecordsTemplate(() => {
-            return rowTemplateData.filter((item) => {
+            return rowTemplateData.filter((item: any) => {
                 return (
-                    item.id.toString().includes(searchTemplate.toLowerCase()) ||
+                    item._id.toString().includes(searchTemplate.toLowerCase()) ||
                     item.name.toLowerCase().includes(searchTemplate.toLowerCase()) ||
                     item.status.toLowerCase().includes(searchTemplate.toLowerCase())
                 );
@@ -153,32 +198,32 @@ export default function MsgTemplate() {
     }, [searchTemplate, rowTemplateData]);
     useEffect(() => {
         setInitialRecordsTemplate(() => {
-            return rowTemplateData.filter((item) => {
+            return rowTemplateData.filter((item: any) => {
                 const searchfilter = filterTemplate === 'active' ? 'active' : filterTemplate === 'inactive' ? 'inactive' : '';
                 if (searchfilter === 'active') {
                     return (
-                        (item.id.toString().includes(searchTemplate.toLowerCase()) ||
+                        (item._id.toString().includes(searchTemplate.toLowerCase()) ||
                             item.name.toLowerCase().includes(searchTemplate.toLowerCase()) ||
                             item.status.toLowerCase().includes(searchTemplate.toLowerCase())) &&
                         item.status === 'active'
                     );
                 } else if (searchfilter === 'inactive') {
                     return (
-                        (item.id.toString().includes(searchTemplate.toLowerCase()) ||
+                        (item._id.toString().includes(searchTemplate.toLowerCase()) ||
                             item.name.toLowerCase().includes(searchTemplate.toLowerCase()) ||
                             item.status.toLowerCase().includes(searchTemplate.toLowerCase())) &&
                         item.status === 'inactive'
                     );
                 } else {
                     return (
-                        item.id.toString().includes(searchTemplate.toLowerCase()) ||
+                        item._id.toString().includes(searchTemplate.toLowerCase()) ||
                         item.name.toLowerCase().includes(searchTemplate.toLowerCase()) ||
                         item.status.toLowerCase().includes(searchTemplate.toLowerCase())
                     );
                 }
             });
         });
-    }, [filterTemplate]);
+    }, [filterTemplate, rowTemplateData]);
     return (
         <div>
             <div className="active pt-5">
@@ -186,7 +231,7 @@ export default function MsgTemplate() {
                     <div className="panel h-full xl:col-span-3">
                         <div className="flex items-center justify-end mb-5">
                             <h5 className="mr-3 font-semibold text-lg dark:text-white-light">
-                                <button onClick={() => setModalAddTemplate(true)} type="button" className="btn btn-primary">
+                                <button onClick={() => openAddModalTemplate()} type="button" className="btn btn-primary">
                                     + Add new
                                 </button>
                             </h5>
@@ -220,14 +265,21 @@ export default function MsgTemplate() {
                                 className="whitespace-nowrap table-striped"
                                 records={recordsDataTemplate}
                                 columns={[
-                                    { accessor: 'name', title: 'Provider' },
+                                    { accessor: 'name', title: 'Template' },
                                     { accessor: 'desc', title: 'Description' },
-                                    { accessor: 'messageTypeName', title: 'Type' },
+                                    {
+                                        accessor: 'messageTypeName',
+                                        title: 'Type',
+                                        render: ({ messageTypeId }: any) => {
+                                            const type = rowDataType.find((item: any) => item._id === messageTypeId);
+                                            return type?.name;
+                                        },
+                                    },
                                     {
                                         accessor: 'status',
                                         title: 'status',
                                         width: '200px',
-                                        render: ({ status }) => {
+                                        render: ({ status }: any) => {
                                             if (status === 'active') {
                                                 return <span className="badge badge-outline-success">Active</span>;
                                             } else if (status === 'inactive') {
@@ -258,7 +310,14 @@ export default function MsgTemplate() {
                                                                 />
                                                             </svg>
                                                         </button>
-                                                        <button type="button" onClick={() => setModalDeleteTemplate(true)} className="btn btn-danger py-3">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setModalDeleteTemplate(true);
+                                                                setIdForDeleteTemplate(item._id);
+                                                            }}
+                                                            className="btn btn-danger py-3"
+                                                        >
                                                             <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                 <path
                                                                     d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
@@ -310,7 +369,6 @@ export default function MsgTemplate() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-2xl text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold">Edit Template</div>
-                                        
                                     </div>
                                     <div className="p-5">
                                         <form>
@@ -341,7 +399,17 @@ export default function MsgTemplate() {
                                             <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
                                                 <label htmlFor="">Type</label>
                                                 <div className="w-3/4 ml-5 text-base">
-                                                    <Select defaultValue={typeSelected[0]} options={typeSelected} isSearchable={false} />
+                                                    <Select
+                                                        options={typeSelected}
+                                                        isSearchable={false}
+                                                        onChange={(e) => {
+                                                            setDataForEditTemplate((dataForEditTemplate: any) => ({
+                                                                ...dataForEditTemplate,
+                                                                messageTypeId: e?.value,
+                                                            }));
+                                                        }}
+                                                        value={typeSelected.find((item: any) => item.value === dataForEditTemplate.messageTypeId)}
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="flex items-center justify-end my-4 mr-5">
@@ -364,7 +432,7 @@ export default function MsgTemplate() {
                                                     Body
                                                 </label>
                                                 <div className="w-3/4 ml-5 text-base">
-                                                    <ReactQuill theme="snow" value={dataForEditTemplate.content.body} onChange={setTemplateValue} />
+                                                    <ReactQuill theme="snow" value={dataForEditTemplate.content.body} onChange={setTemplateValueToEdit} />
                                                 </div>{' '}
                                             </div>
                                             <div className="flex items-start justify-end my-4 mr-5">
@@ -388,7 +456,7 @@ export default function MsgTemplate() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalEditTemplate(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => setModalEditTemplate(false)}>
+                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateTemplate()}>
                                                 Save
                                             </button>
                                         </div>
@@ -420,23 +488,46 @@ export default function MsgTemplate() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-2xl text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold">Add Template</div>
-                                        
                                     </div>
                                     <div className="p-5">
                                         <form>
                                             <div className="flex items-center justify-end my-4 mr-5">
                                                 <label htmlFor="">Template</label>
-                                                <input type="text" placeholder="" className="w-3/4 ml-5 form-input text-base" required />
+                                                <input
+                                                    value={dataForAddTemplate.name}
+                                                    onChange={handleChangeAddTemplate}
+                                                    name="name"
+                                                    type="text"
+                                                    placeholder=""
+                                                    className="w-3/4 ml-5 form-input text-base"
+                                                    required
+                                                />
                                             </div>
                                             <div className="flex items-start justify-end my-4 mr-5">
                                                 <label htmlFor="">Description</label>
-                                                <textarea placeholder="" className="w-3/4 ml-5 form-input text-base" required />
+                                                <textarea
+                                                    value={dataForAddTemplate.desc}
+                                                    onChange={handleChangeAddTemplate}
+                                                    name="desc"
+                                                    placeholder=""
+                                                    className="w-3/4 ml-5 form-input text-base"
+                                                    required
+                                                />
                                             </div>
 
                                             <div className="flex items-start justify-end my-4 mr-5 overflow-visible">
                                                 <label htmlFor="">Type</label>
                                                 <div className="w-3/4 ml-5 text-base">
-                                                    <Select defaultValue={typeSelected[0]} options={typeSelected} isSearchable={false} />
+                                                    <Select
+                                                        options={typeSelected}
+                                                        isSearchable={false}
+                                                        onChange={(e) => {
+                                                            setDataForAddTemplate((dataForAddType: any) => ({
+                                                                ...dataForAddType,
+                                                                messageTypeId: e?.value,
+                                                            }));
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
 
@@ -444,7 +535,15 @@ export default function MsgTemplate() {
                                                 <label className="ml-5 text-base pt-4" htmlFor="">
                                                     Subject
                                                 </label>
-                                                <input type="text" placeholder="" className="w-3/4 ml-5 form-input text-base" required />
+                                                <input
+                                                    value={dataForAddTemplate.content.subject}
+                                                    onChange={handleChangeAddTemplate}
+                                                    name="content.subject"
+                                                    type="text"
+                                                    placeholder=""
+                                                    className="w-3/4 ml-5 form-input text-base"
+                                                    required
+                                                />
                                             </div>
 
                                             <div className="flex items-start justify-end my-4 mr-5">
@@ -452,7 +551,7 @@ export default function MsgTemplate() {
                                                     Body
                                                 </label>
                                                 <div className="w-3/4 ml-5 text-base">
-                                                    <ReactQuill theme="snow" value={templateValue} onChange={setTemplateValue} />
+                                                    <ReactQuill theme="snow" value={templateValue} onChange={setTemplateValueToadd} />
                                                 </div>{' '}
                                             </div>
 
@@ -465,7 +564,13 @@ export default function MsgTemplate() {
                                                             className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                                                             id="custom_switch_checkbox1"
                                                             checked={statusToggleTemplate}
-                                                            onChange={() => setStatusToggleTemplate(!statusToggleTemplate)}
+                                                            onChange={() => {
+                                                                setStatusToggleTemplate(!statusToggleTemplate);
+                                                                setDataForAddTemplate((dataForAddType: any) => ({
+                                                                    ...dataForAddType,
+                                                                    status: !statusToggleTemplate ? 'active' : 'inactive',
+                                                                }));
+                                                            }}
                                                         />
                                                         <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full before:bg-[url(/assets/images/close.svg)] before:bg-no-repeat before:bg-center peer-checked:before:left-7 peer-checked:before:bg-[url(/assets/images/checked.svg)] peer-checked:border-success peer-checked:before:bg-success before:transition-all before:duration-300"></span>
                                                     </label>
@@ -477,7 +582,7 @@ export default function MsgTemplate() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddTemplate(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModalAddTemplate(false)}>
+                                            <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => createTemplate()}>
                                                 Save
                                             </button>
                                         </div>
@@ -509,7 +614,6 @@ export default function MsgTemplate() {
                                 <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-hidden my-8 w-full max-w-md text-black dark:text-white-dark">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                                         <div className="text-lg font-bold"></div>
-                                       
                                     </div>
                                     <div className="p-5 flex flex-col justify-center items-center">
                                         <svg width="30" height="34" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -528,7 +632,7 @@ export default function MsgTemplate() {
                                             <button type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel
                                             </button>
-                                            <button type="button" className="btn btn-danger mx-2">
+                                            <button onClick={() => deleteTemplate()} type="button" className="btn btn-danger mx-2">
                                                 Yes, I’m sure
                                             </button>
                                         </div>

@@ -32,7 +32,7 @@ export default function MsgChannel() {
         id: '',
         name: '',
         desc: '',
-        providerId: [],
+        providerData: [],
         status: '',
     } as any);
     const [dataForAddChannel, setDataForAddChannel] = useState({
@@ -88,11 +88,14 @@ export default function MsgChannel() {
         try {
             const dataForUpdate = {
                 ...dataForEditChannel,
-                providerId: dataForEditChannel.providerId.map((item: any) => {
+                providerId: dataForEditChannel.providerData.map((item: any) => {
                     return item._id;
                 }),
+                status: statusToggleChannel ? 'active' : 'inactive',
             };
+            console.log('data --> ',dataForUpdate);
             const response = await axios.patch(`${endpoint}/channel?id=${dataForUpdate._id}`, dataForUpdate);
+            console.log(response);
             setModalEditChannel(false);
             fetchItems();
         } catch (error) {
@@ -103,6 +106,7 @@ export default function MsgChannel() {
     const deleteChannel = async () => {
         try {
             const response = await axios.delete(`${endpoint}/channel?id=${idForDeleteChannel}`);
+            console.log(response);
             setModalDeleteChannel(false);
             fetchItems();
         } catch (error) {
@@ -117,12 +121,22 @@ export default function MsgChannel() {
     };
 
     const openEditModalChannel = (data: any) => {
+        console.log(data);
         setProviderSelected([]);
         rowData.map((item: any) => {
             setProviderSelected((providerSelected) => [...providerSelected, { value: item._id, label: item.name }]);
         });
         data.status === 'active' ? setStatusToggleChannel(true) : setStatusToggleChannel(false);
         setDataForEditChannel(data);
+        // setDataForEditChannel = providerId
+        setDataForEditChannel((dataForEditChannel: any) => ({
+            ...dataForEditChannel,
+            providerId: data.providerData.map((item: any) => {
+                // push providerId
+                return item._id;
+            }),
+        }));
+
         setModalEditChannel(true);
     };
 
@@ -156,7 +170,7 @@ export default function MsgChannel() {
                     item._id.toString().includes(searchChannel.toLowerCase()) ||
                     item.name.toLowerCase().includes(searchChannel.toLowerCase()) ||
                     item.status.toLowerCase().includes(searchChannel.toLowerCase()) ||
-                    item.providerId[0].name.toLowerCase().includes(searchChannel.toLowerCase())
+                    item.providerData[0].name.toLowerCase().includes(searchChannel.toLowerCase())
                 );
             });
         });
@@ -233,14 +247,14 @@ export default function MsgChannel() {
                                     { accessor: 'name', title: 'Channel' },
                                     { accessor: 'desc', title: 'Description' },
                                     {
-                                        accessor: 'providerId',
+                                        accessor: 'providerData',
                                         title: 'Provider',
                                         width: '200px',
                                         render: (item: any) => {
                                             return (
                                                 <span>
-                                                    {item.providerId.map((element: any, index: any) => {
-                                                        return index === item.providerId.length - 1 ? element.name : element.name + ', ';
+                                                    {item.providerData.map((element: any, index: any) => {
+                                                        return index === item.providerData.length - 1 ? element.name : element.name + ', ';
                                                     })}
                                                 </span>
                                             );
@@ -375,12 +389,12 @@ export default function MsgChannel() {
                                                         onChange={(e) =>
                                                             setDataForEditChannel({
                                                                 ...dataForEditChannel,
-                                                                providerId: e.map((item: any) => {
+                                                                providerData: e.map((item: any) => {
                                                                     return { _id: item.value, name: item.label };
                                                                 }),
                                                             })
                                                         }
-                                                        defaultValue={dataForEditChannel.providerId.map((item: any) => {
+                                                        defaultValue={dataForEditChannel.providerData.map((item: any) => {
                                                             return { label: item.name, value: item._id };
                                                         })}
                                                         options={providerSelected}
@@ -398,7 +412,10 @@ export default function MsgChannel() {
                                                             className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                                                             id="custom_switch_checkbox1"
                                                             checked={statusToggleChannel}
-                                                            onChange={() => setStatusToggleChannel(!statusToggleChannel)}
+                                                            onChange={() => {
+                                                                setStatusToggleChannel(!statusToggleChannel)
+                                                                console.log(statusToggleChannel)
+                                                            }}
                                                         />
                                                         <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full before:bg-[url(/assets/images/close.svg)] before:bg-no-repeat before:bg-center peer-checked:before:left-7 peer-checked:before:bg-[url(/assets/images/checked.svg)] peer-checked:border-success peer-checked:before:bg-success before:transition-all before:duration-300"></span>
                                                     </label>

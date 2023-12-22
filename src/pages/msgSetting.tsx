@@ -16,133 +16,18 @@ import { em } from '@fullcalendar/core/internal-common';
 
 import React from 'react';
 
-// import MsgProvider from '../components/msgSystem/provider';
-// import MsgChannel from '../components/msgSystem/channel';
-// import MsgType from '../components/msgSystem/type';
-// import MsgTemplate from '../components/msgSystem/template';
+import MsgProvider from '../components/msgSystem/provider';
+import MsgChannel from '../components/msgSystem/channel';
+import MsgType from '../components/msgSystem/type';
+import MsgTemplate from '../components/msgSystem/template';
 // dynamic import
-const MsgProvider = React.lazy(() => import('../components/msgSystem/provider'));
-const MsgChannel = React.lazy(() => import('../components/msgSystem/channel'));
-const MsgType = React.lazy(() => import('../components/msgSystem/type'));
-const MsgTemplate = React.lazy(() => import('../components/msgSystem/template'));
-
-const rowData = [
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afa")',
-        name: 'Gmail',
-        desc: 'Personal google email.',
-        credential: {
-            username: 'username1',
-            password: '<PASSWORD>',
-        },
-        status: 'inactive',
-    },
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afb")',
-        name: 'AWS',
-        desc: 'Personal AWS.',
-        credential: {
-            username: 'username2',
-            password: '<PASSWORD>',
-        },
-        status: 'active',
-    },
-    {
-        id: 'ObjectId("654dc88e5fde0679c97f5afc")',
-        name: 'SendGrid',
-        desc: 'Personal SendGrid.',
-        credential: {
-            username: 'username3',
-            password: '<PASSWORD>',
-        },
-        status: 'active',
-    },
-];
-const rowDataChannel = [
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afb")',
-        name: 'Email',
-        desc: 'Personal email.',
-        providerId: ['ObjectId("654dc88e5fde0679c97f5afa")'],
-        status: 'inactive',
-    },
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afc")',
-        name: 'SMS',
-        desc: 'Personal SMS.',
-        providerId: ['ObjectId("654dc88e5fde0679c97f5afb")'],
-        status: 'active',
-    },
-    {
-        _id: 'ObjectId("654dc95d5fde0679c97f5afd")',
-        name: 'Push',
-        desc: 'Personal Push.',
-        providerId: ['ObjectId("654dc88e5fde0679c97f5afc")'],
-        status: 'active',
-    },
-];
-
-const rowDataType = [
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afb")',
-        name: 'Login alert',
-        desc: 'Send email notification when login success.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afa")',
-        status: 'inactive',
-    },
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afc")',
-        name: 'Forgot password alert',
-        desc: 'Send email notification when forgot password success.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afb")',
-        status: 'active',
-    },
-    {
-        id: 'ObjectId("654dc95d5fde0679c97f5afd")',
-        name: 'Contact us',
-        desc: 'Send email notification when contact us.',
-        msgChannelId: 'ObjectId("654dc88e5fde0679c97f5afc")',
-        status: 'active',
-    },
-];
-const rowTemplateData = [
-    {
-        id: 'ObjectId("654dccf35fde0679c97f5afd")',
-        name: 'Forgot Password',
-        desc: 'Forgot Password Email.',
-        messageTypeId: 'ObjectId("654dc9c65fde0679c97f5afc")',
-        content: {
-            subject: 'Complete your password reset request',
-            body: `<h1><span class="il">Reset</span>&nbsp;your&nbsp;<span class="il">password</span></h1>
-<p><span class="il">Hi John,</span></p>
-<p><span class="il">Let's reset your password so you can get back to login.</span></p>
-<table style="border-collapse: collapse; width: 100%;" border="1">
-<tbody>
-<tr>
-<td style="width: 700px; text-align: center;"><strong>Reset Password</strong></td>
-</tr>
-</tbody>
-</table>
-<p><span class="il">If you did not ask to reset your password you may want to review your recent account access for any unusual activity.</span></p>
-<p><span class="il">We're here to help if you need it. Visit the Help Center for more info or contact us.<br /></span></p>
-<p><strong><span class="il">The BBO team</span></strong></p>`,
-        },
-        status: 'inactive',
-    },
-    {
-        id: 'ObjectId("654dccf35fde0679c97f5afd")',
-        name: 'Contact Us',
-        desc: 'Contact Us Email.',
-        messageTypeId: 'ObjectId("654dc9c65fde0679c97f5afc")',
-        content: {
-            subject: 'Contact Us Email Subject',
-            body: `<h1><span class="il">Contact</span>&nbsp;Us</h1>`,
-        },
-        status: 'active',
-    },
-];
+// const MsgProvider = React.lazy(() => import('../components/msgSystem/provider'));
+// const MsgChannel = React.lazy(() => import('../components/msgSystem/channel'));
+// const MsgType = React.lazy(() => import('../components/msgSystem/type'));
+// const MsgTemplate = React.lazy(() => import('../components/msgSystem/template'));
 
 const msgSetting = () => {
+    const [isLoaded, setIsLoaded] = useState(false);
     const isDark = useSelector((state: IRootState) => state.themeConfig.theme === 'dark' || state.themeConfig.isDarkMode);
     const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
 
@@ -154,9 +39,10 @@ const msgSetting = () => {
         dispatch(setPageTitle('Message Setting'));
     });
 
-    
 
-    return (
+    return isLoaded ? (
+        <div className="loader">s</div>
+    ) : (
         <div>
             <h1 className="font-bold text-xl">
                 System Setting / Message{' '}
@@ -167,7 +53,9 @@ const msgSetting = () => {
                     <Tab as={Fragment}>
                         {({ selected }) => (
                             <button
-                                onClick={() => setCurrentTabName('Provider')}
+                                onClick={() => {
+                                    setCurrentTabName('Provider');
+                                }}
                                 className={`${
                                     selected ? 'border-b !border-primary text-primary !outline-none' : ''
                                 } -mb-[1px] font-bold flex items-center border-transparent p-5 py-3 before:inline-block hover:border-b hover:!border-primary hover:text-primary`}
@@ -179,7 +67,9 @@ const msgSetting = () => {
                     <Tab as={Fragment}>
                         {({ selected }) => (
                             <button
-                                onClick={() => setCurrentTabName('Channel')}
+                                onClick={() => {
+                                    setCurrentTabName('Channel');
+                                }}
                                 className={`${
                                     selected ? 'border-b !border-primary text-primary !outline-none' : ''
                                 } -mb-[1px] font-bold flex items-center border-transparent p-5 py-3 before:inline-block hover:border-b hover:!border-primary hover:text-primary`}
@@ -217,6 +107,8 @@ const msgSetting = () => {
                 <Tab.Panels>
                     {/* Provider content */}
                     <Tab.Panel>
+                            <MsgProvider />
+                        <div>test1</div>
                         <MsgProvider />
                     </Tab.Panel>
 

@@ -228,7 +228,11 @@ export default function MsgType() {
                                         accessor: 'msgChannelId',
                                         title: 'Channel',
                                         render: ({ msgChannelId }: any) => {
-                                            return <>{rowDataChannel.filter((item: any) => item._id === msgChannelId)[0].name}</>;
+                                            return rowDataChannel.map((item: any) => {
+                                                if (item._id === msgChannelId) {
+                                                    return <span>{item.name}</span>;
+                                                }
+                                            });
                                         },
                                     },
                                     {

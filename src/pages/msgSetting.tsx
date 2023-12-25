@@ -108,8 +108,7 @@ const msgSetting = () => {
                     {/* Provider content */}
                     <Tab.Panel>
                             <MsgProvider />
-                        <div>test1</div>
-                        <MsgProvider />
+                        
                     </Tab.Panel>
 
                     {/* Channel content */}

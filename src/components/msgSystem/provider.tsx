@@ -2,9 +2,14 @@ import { useEffect, useState, Fragment } from 'react';
 import { DataTable } from 'mantine-datatable';
 import { Dialog, Transition } from '@headlessui/react';
 import axios from 'axios';
+import sweetalert2 from 'sweetalert2';
+import AlertComponent from '../Alert/AlertComponent';
 
 export default function MsgProvider() {
     const endpoint = import.meta.env.VITE_API_ENDPOINT;
+    const Swal = sweetalert2;
+    const collectionName = 'Provider';
+
     // Provider zone
     const [rowData, setRowData] = useState([] as any);
     const PAGE_SIZES = [10, 20, 30, 50, 100];
@@ -45,47 +50,6 @@ export default function MsgProvider() {
     useEffect(() => {
         fetchItems();
     }, []);
-
-    // service create provider
-    const createProvider = async () => {
-        try {
-            const response = await axios.post(`${endpoint}/provider`, dataForAddProvider);
-            fetchItems();
-            setModalAdd(false);
-        } catch (error) {
-            console.error('Error fetching data: ', error);
-        }
-    };
-
-    // service update provider
-    const updateProvider = async () => {
-        try {
-            const response = await axios.patch(`${endpoint}/provider?id=${dataForEditProvider._id}`, {
-                name: dataForEditProvider.name,
-                desc: dataForEditProvider.desc,
-                credential: {
-                    username: dataForEditProvider.credential.username,
-                    password: dataForEditProvider.credential.password,
-                },
-                status: dataForEditProvider.status,
-            });
-            fetchItems();
-            setModalEdit(false);
-        } catch (error) {
-            console.error('Error fetching data: ', error);
-        }
-    };
-
-    // service delete provider
-    const deleteProvider = async () => {
-        try {
-            const response = await axios.delete(`${endpoint}/provider/?id=${idForDeleteProvider}`);
-            fetchItems();
-            setModalDelete(false);
-        } catch (error) {
-            console.error('Error fetching data: ', error);
-        }
-    };
 
     async function fetchItems() {
         try {
@@ -145,6 +109,21 @@ export default function MsgProvider() {
         data.status === 'active' ? setStatusToggleProvider(true) : setStatusToggleProvider(false);
         setDataForEditProvider(data);
         setModalEdit(true);
+    };
+
+    const showMessage = (msg = '', type = '') => {
+        const toast: any = Swal.mixin({
+            toast: true,
+            position: 'top',
+            showConfirmButton: false,
+            timer: 3000,
+            customClass: { container: 'toast' },
+        });
+        toast.fire({
+            icon: type,
+            title: msg,
+            padding: '10px 20px',
+        });
     };
 
     const togglePasswordVisibility = () => {
@@ -462,9 +441,17 @@ export default function MsgProvider() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalEdit(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateProvider()}>
+                                            {/* <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateProvider()}>
                                                 Save
-                                            </button>
+                                            </button> */}
+                                            <AlertComponent
+                                                actions={'update'}
+                                                collectionName={collectionName}
+                                                body={dataForEditProvider}
+                                                url={`${endpoint}/provider?id=${dataForEditProvider._id}`}
+                                                setModal={setModalEdit}
+                                                fetchItems={fetchItems}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>
@@ -618,9 +605,17 @@ export default function MsgProvider() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAdd(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => createProvider()}>
+                                            {/* <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => createProvider()}>
                                                 Save
-                                            </button>
+                                            </button> */}
+                                            <AlertComponent
+                                                actions={'create'}
+                                                collectionName={collectionName}
+                                                url={`${endpoint}/provider`}
+                                                body={dataForAddProvider}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalAdd}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>
@@ -668,9 +663,13 @@ export default function MsgProvider() {
                                             <button onClick={() => setModalDelete(false)} type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel
                                             </button>
-                                            <button onClick={() => deleteProvider()} type="button" className="btn btn-danger mx-2">
-                                                Yes, I’m sure
-                                            </button>
+                                            <AlertComponent
+                                                actions={'delete'}
+                                                collectionName={collectionName}
+                                                url={`${endpoint}/provider/?id=${idForDeleteProvider}`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalDelete}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>

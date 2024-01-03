@@ -5,6 +5,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import Select from 'react-select';
 import axios from 'axios';
 import { DataTable } from 'mantine-datatable';
+import AlertComponent from '../Alert/AlertComponent';
 
 export default function MsgChannel() {
     const endpoint = import.meta.env.VITE_API_ENDPOINT;
@@ -17,7 +18,7 @@ export default function MsgChannel() {
     const [pageChannel, setPageChannel] = useState(1);
     const [pageSizeChannel, setPageSizeChannel] = useState(PAGE_SIZES[0]);
     const [initialRecordsChannel, setInitialRecordsChannel] = useState(rowDataChannel);
-    const [recordsDataChannel, setRecordsDataChannel] = useState(initialRecordsChannel);
+    const [recordsDataChannel, setRecordsDataChannel] = useState(initialRecordsChannel.reverse());
     const [searchChannel, setSearchChannel] = useState('');
     const [filterChannel, setFilterChannel] = useState('');
     const [modalEditChannel, setModalEditChannel] = useState(false);
@@ -74,46 +75,6 @@ export default function MsgChannel() {
         }
     }
 
-    const createChannel = async () => {
-        try {
-            const response = await axios.post(`${endpoint}/channel`, dataForAddChannel);
-            setModalAddChannel(false);
-            fetchItems();
-        } catch (error) {
-            console.error('Error fetching data: ', error);
-        }
-    };
-
-    const updateChannel = async () => {
-        try {
-            const dataForUpdate = {
-                ...dataForEditChannel,
-                providerId: dataForEditChannel.providerData.map((item: any) => {
-                    return item._id;
-                }),
-                status: statusToggleChannel ? 'active' : 'inactive',
-            };
-            console.log('data --> ',dataForUpdate);
-            const response = await axios.patch(`${endpoint}/channel?id=${dataForUpdate._id}`, dataForUpdate);
-            console.log(response);
-            setModalEditChannel(false);
-            fetchItems();
-        } catch (error) {
-            console.error('Error fetching data: ', error);
-        }
-    };
-
-    const deleteChannel = async () => {
-        try {
-            const response = await axios.delete(`${endpoint}/channel?id=${idForDeleteChannel}`);
-            console.log(response);
-            setModalDeleteChannel(false);
-            fetchItems();
-        } catch (error) {
-            console.error('Error fetching data: ', error);
-        }
-    };
-
     // modal zone
     const openDeleteModalChannel = (id: any) => {
         setIdForDeleteChannel(id);
@@ -128,11 +89,9 @@ export default function MsgChannel() {
         });
         data.status === 'active' ? setStatusToggleChannel(true) : setStatusToggleChannel(false);
         setDataForEditChannel(data);
-        // setDataForEditChannel = providerId
         setDataForEditChannel((dataForEditChannel: any) => ({
             ...dataForEditChannel,
             providerId: data.providerData.map((item: any) => {
-                // push providerId
                 return item._id;
             }),
         }));
@@ -392,6 +351,7 @@ export default function MsgChannel() {
                                                                 providerData: e.map((item: any) => {
                                                                     return { _id: item.value, name: item.label };
                                                                 }),
+                                                                providerId: e.map((item: any) => item.value),
                                                             })
                                                         }
                                                         defaultValue={dataForEditChannel.providerData.map((item: any) => {
@@ -414,7 +374,7 @@ export default function MsgChannel() {
                                                             checked={statusToggleChannel}
                                                             onChange={() => {
                                                                 setStatusToggleChannel(!statusToggleChannel)
-                                                                console.log(statusToggleChannel)
+                                                                setDataForEditChannel({ ...dataForEditChannel, status: !statusToggleChannel ? 'active' : 'inactive' });
                                                             }}
                                                         />
                                                         <span className="outline_checkbox bg-icon border-2 border-[#ebedf2] dark:border-white-dark block h-full rounded-full before:absolute before:left-1 before:bg-[#ebedf2] dark:before:bg-white-dark before:bottom-1 before:w-4 before:h-4 before:rounded-full before:bg-[url(/assets/images/close.svg)] before:bg-no-repeat before:bg-center peer-checked:before:left-7 peer-checked:before:bg-[url(/assets/images/checked.svg)] peer-checked:border-success peer-checked:before:bg-success before:transition-all before:duration-300"></span>
@@ -425,12 +385,22 @@ export default function MsgChannel() {
                                         </form>
 
                                         <div className="flex justify-end items-center mt-8">
-                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setDataForEditChannel(false)}>
+                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalEditChannel(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateChannel()}>
+                                            {/* <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateChannel()}>
                                                 Save
-                                            </button>
+                                            </button> */}
+                                            <AlertComponent
+                                                actions={'update'}
+                                                collectionName={'Channel'}
+                                                url={`${endpoint}/channel?id=${dataForEditChannel._id}`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalEditChannel}
+                                                btnClassName={'btn btn-info ltr:ml-4 rtl:mr-4'}
+                                                buttonText={'Save'}
+                                                body={dataForEditChannel}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>
@@ -524,9 +494,20 @@ export default function MsgChannel() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddChannel(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => createChannel()}>
+                                            {/* <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => createChannel()}>
                                                 Save
-                                            </button>
+                                            </button> */}
+                                            <AlertComponent
+                                                actions={'create'}
+                                                collectionName={'Channel'}
+                                                url={`${endpoint}/channel`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalAddChannel}
+                                                btnClassName={'btn btn-info ltr:ml-4 rtl:mr-4'}
+                                                buttonText={'Save'}
+                                                body={dataForAddChannel}
+                                            />
+
                                         </div>
                                     </div>
                                 </Dialog.Panel>
@@ -574,9 +555,18 @@ export default function MsgChannel() {
                                             <button onClick={() => setModalDeleteChannel(false)} type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel
                                             </button>
-                                            <button onClick={() => deleteChannel()} type="button" className="btn btn-danger mx-2">
+                                            {/* <button onClick={() => deleteChannel()} type="button" className="btn btn-danger mx-2">
                                                 Yes, I’m sure
-                                            </button>
+                                            </button> */}
+                                             <AlertComponent
+                                                actions={'delete'}
+                                                collectionName={'Channel'}
+                                                url={`${endpoint}/channel?id=${idForDeleteChannel}`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalDeleteChannel}
+                                                btnClassName={'btn btn-danger mx-2'}
+                                                buttonText={'Yes, I’m sure'}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>

@@ -16,7 +16,7 @@ export default function MsgProvider() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
     const [initialRecords, setInitialRecords] = useState(rowData);
-    const [recordsData, setRecordsData] = useState(initialRecords);
+    const [recordsData, setRecordsData] = useState(initialRecords.reverse());
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('');
     const [modalEdit, setModalEdit] = useState(false);
@@ -451,6 +451,8 @@ export default function MsgProvider() {
                                                 url={`${endpoint}/provider?id=${dataForEditProvider._id}`}
                                                 setModal={setModalEdit}
                                                 fetchItems={fetchItems}
+                                                btnClassName={'btn btn-info ltr:ml-4 rtl:mr-4'}
+                                                buttonText={'Save'}
                                             />
                                         </div>
                                     </div>
@@ -615,6 +617,8 @@ export default function MsgProvider() {
                                                 body={dataForAddProvider}
                                                 fetchItems={fetchItems}
                                                 setModal={setModalAdd}
+                                                btnClassName="btn btn-info ltr:ml-4 rtl:mr-4"
+                                                buttonText={'Save'}
                                             />
                                         </div>
                                     </div>
@@ -669,6 +673,8 @@ export default function MsgProvider() {
                                                 url={`${endpoint}/provider/?id=${idForDeleteProvider}`}
                                                 fetchItems={fetchItems}
                                                 setModal={setModalDelete}
+                                                btnClassName="btn btn-danger mx-2"
+                                                buttonText={'Yes, I’m sure'}
                                             />
                                         </div>
                                     </div>

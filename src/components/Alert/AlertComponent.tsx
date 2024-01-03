@@ -3,11 +3,10 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 
 const AlertComponent = (props: any) => {
-    const { collectionName, url, fetchItems, setModal, actions, body } = props;
+    const { collectionName, url, fetchItems, setModal, actions, body, btnClassName, buttonText } = props;
 
     const processMethod = async () => {
         try {
-            // console.log(props);
             if (actions == 'delete') {
                 const response = await axios.delete(`${url}`);
                 const responseStatus = response.data.status;
@@ -63,8 +62,6 @@ const AlertComponent = (props: any) => {
                         showMessage('An unexpected error occurred. Please try again.', 'error');
                 }
             } else if (actions == 'update') {
-                console.log('update');
-                console.log(url, body);
                 const response = await axios.patch(`${url}`, body);
                 const responseStatus = response.data.status;
                 switch (responseStatus) {
@@ -117,8 +114,8 @@ const AlertComponent = (props: any) => {
     };
 
     return (
-        <button onClick={() => processMethod()} type="button" className="btn btn-danger mx-2">
-            Yes, I’m sure
+        <button onClick={() => processMethod()} type="button" className={btnClassName}>
+            {buttonText}
         </button>
     );
 };

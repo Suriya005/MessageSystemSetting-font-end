@@ -7,6 +7,7 @@ import { DataTable } from 'mantine-datatable';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from 'axios';
+import AlertComponent from '../Alert/AlertComponent';
 
 export default function MsgTemplate() {
     const endpoint = import.meta.env.VITE_API_ENDPOINT;
@@ -22,7 +23,7 @@ export default function MsgTemplate() {
     const [pageTemplate, setPageTemplate] = useState(1);
     const [pageSizeTemplate, setPageSizeTemplate] = useState(PAGE_SIZES[0]);
     const [initialRecordsTemplate, setInitialRecordsTemplate] = useState(rowTemplateData);
-    const [recordsDataTemplate, setRecordsDataTemplate] = useState(initialRecordsTemplate);
+    const [recordsDataTemplate, setRecordsDataTemplate] = useState(initialRecordsTemplate.reverse());
     const [searchTemplate, setSearchTemplate] = useState('');
     const [filterTemplate, setFilterTemplate] = useState('');
     const [modalEditTemplate, setModalEditTemplate] = useState(false);
@@ -105,26 +106,6 @@ export default function MsgTemplate() {
         setRowTemplateData(responseTemplate.data.result);
         const responseDataType = await axios.get(`${endpoint}/types`);
         setRowDataType(responseDataType.data.result);
-    };
-
-    const createTemplate = async () => {
-        console.log(dataForAddTemplate);
-        const res = await axios.post(`${endpoint}/template`, dataForAddTemplate);
-        console.log(res);
-        setModalAddTemplate(false);
-        fetchItems();
-    };
-
-    const updateTemplate = async () => {
-        const res = await axios.patch(`${endpoint}/template?id=${dataForEditTemplate._id}`, dataForEditTemplate);
-        console.log(res);
-        setModalEditTemplate(false);
-        fetchItems();
-    };
-    const deleteTemplate = async () => {
-        const res = await axios.delete(`${endpoint}/template?id=${idForDeleteTemplate}`);
-        setModalDeleteTemplate(false);
-        fetchItems();
     };
 
     const openEditModalTemplate = (data: any) => {
@@ -464,9 +445,20 @@ export default function MsgTemplate() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalEditTemplate(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateTemplate()}>
+                                            {/* <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateTemplate()}>
                                                 Save
-                                            </button>
+                                            </button> */}
+
+                                            <AlertComponent
+                                                actions={'update'}
+                                                collectionName={'Type'}
+                                                url={`${endpoint}/template?id=${dataForEditTemplate._id}`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalEditTemplate}
+                                                btnClassName="btn btn-info ltr:ml-4 rtl:mr-4"
+                                                buttonText={'Save'}
+                                                body={dataForEditTemplate}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>
@@ -590,9 +582,19 @@ export default function MsgTemplate() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddTemplate(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => createTemplate()}>
+                                            {/* <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => createTemplate()}>
                                                 Save
-                                            </button>
+                                            </button> */}
+                                            <AlertComponent
+                                                actions={'create'}
+                                                collectionName={'Template'}
+                                                url={`${endpoint}/template`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalAddTemplate}
+                                                btnClassName="btn btn-primary ltr:ml-4 rtl:mr-4"
+                                                buttonText={'Save'}
+                                                body={dataForAddTemplate}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>
@@ -640,9 +642,18 @@ export default function MsgTemplate() {
                                             <button type="button" className="btn btn-outline-dark mx-2">
                                                 No, cancel
                                             </button>
-                                            <button onClick={() => deleteTemplate()} type="button" className="btn btn-danger mx-2">
+                                            {/* <button onClick={() => deleteTemplate()} type="button" className="btn btn-danger mx-2">
                                                 Yes, I’m sure
-                                            </button>
+                                            </button> */}
+                                            <AlertComponent
+                                                actions={'delete'}
+                                                collectionName={'Template'}
+                                                url={`${endpoint}/template?id=${idForDeleteTemplate}`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalDeleteTemplate}
+                                                btnClassName="btn btn-danger mx-2"
+                                                buttonText={'Yes, I’m sure'}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>

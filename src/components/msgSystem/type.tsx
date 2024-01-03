@@ -5,6 +5,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import Select from 'react-select';
 import { DataTable } from 'mantine-datatable';
 import axios from 'axios';
+import AlertComponent from '../Alert/AlertComponent';
 
 // const endpoint = 'http://127.0.0.1:14000';
 
@@ -21,7 +22,7 @@ export default function MsgType() {
     const [pageType, setPageType] = useState(1);
     const [pageSizeType, setPageSizeType] = useState(PAGE_SIZES[0]);
     const [initialRecordsType, setInitialRecordsType] = useState(rowDataType);
-    const [recordsDataType, setRecordsDataType] = useState(initialRecordsType);
+    const [recordsDataType, setRecordsDataType] = useState(initialRecordsType.reverse());
     const [searchType, setSearchType] = useState('');
     const [filterType, setFilterType] = useState('');
     const [modalEditType, setModalEditType] = useState(false);
@@ -48,42 +49,12 @@ export default function MsgType() {
         status: '',
     } as any);
     const [statusToggleType, setStatusToggleType] = useState(true);
-    const [idForDeleteChannel, setIdForDeleteChannel] = useState('' as any);
+    const [idForDeleteType, setIdForDeleteType] = useState('' as any);
 
     // api zone
     useEffect(() => {
         fetchItems();
     }, []);
-
-    const createType = async () => {
-        try {
-            await axios.post(`${endpoint}/type`, dataForAddType);
-            fetchItems();
-            setModalAddType(false);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const updateType = async () => {
-        try {
-            await axios.patch(`${endpoint}/type?id=${dataForEditType._id}`, dataForEditType);
-            fetchItems();
-            setModalEditType(false);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const deleteType = async () => {
-        try {
-            await axios.delete(`${endpoint}/type?id=${idForDeleteChannel}`);
-            fetchItems();
-            setModalDeleteType(false);
-        } catch (error) {
-            console.log(error);
-        }
-    };
 
     async function fetchItems() {
         try {
@@ -274,7 +245,7 @@ export default function MsgType() {
                                                             type="button"
                                                             onClick={() => {
                                                                 setModalDeleteType(true);
-                                                                setIdForDeleteChannel(item._id);
+                                                                setIdForDeleteType(item._id);
                                                             }}
                                                             className="btn btn-danger py-3"
                                                         >
@@ -400,9 +371,19 @@ export default function MsgType() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddType(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateType()}>
+                                            {/* <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateType()}>
                                                 Save
-                                            </button>
+                                            </button> */}
+                                            <AlertComponent
+                                                actions={'update'}
+                                                collectionName={'Type'}
+                                                url={`${endpoint}/type?id=${dataForEditType._id}`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalEditType}
+                                                btnClassName="btn btn-info ltr:ml-4 rtl:mr-4"
+                                                buttonText={'Save'}
+                                                body={dataForEditType}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>
@@ -494,9 +475,19 @@ export default function MsgType() {
                                             <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddType(false)}>
                                                 Cancel
                                             </button>
-                                            <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => createType()}>
+                                            {/* <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => createType()}>
                                                 Save
-                                            </button>
+                                            </button> */}
+                                            <AlertComponent
+                                                actions={'create'}
+                                                collectionName={'Type'}
+                                                url={`${endpoint}/type`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalAddType}
+                                                btnClassName="btn btn-info ltr:ml-4 rtl:mr-4"
+                                                buttonText={'Save'}
+                                                body={dataForAddType}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>
@@ -550,7 +541,7 @@ export default function MsgType() {
                                             >
                                                 No, cancel
                                             </button>
-                                            <button
+                                            {/* <button
                                                 onClick={() => {
                                                     deleteType();
                                                 }}
@@ -558,7 +549,17 @@ export default function MsgType() {
                                                 className="btn btn-danger mx-2"
                                             >
                                                 Yes, I’m sure
-                                            </button>
+                                            </button> */}
+
+                                            <AlertComponent
+                                                actions={'delete'}
+                                                collectionName={'Type'}
+                                                url={`${endpoint}/type?id=${idForDeleteType}`}
+                                                fetchItems={fetchItems}
+                                                setModal={setModalDeleteType}
+                                                btnClassName="btn btn-danger mx-2"
+                                                buttonText={'Yes, I’m sure'}
+                                            />
                                         </div>
                                     </div>
                                 </Dialog.Panel>

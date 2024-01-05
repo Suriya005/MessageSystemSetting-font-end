@@ -86,7 +86,9 @@ export default function MsgType() {
     const openEditModalType = (data: any) => {
         setChannelSelected([]);
         rowDataChannel.map((item: any) => {
-            setChannelSelected((channelSelected) => [...channelSelected, { value: item._id, label: item.name }]);
+            if (item.status === 'active') {
+                setChannelSelected((channelSelected) => [...channelSelected, { value: item._id, label: item.name }]);
+            }
         });
         data.status === 'active' ? setStatusToggleType(true) : setStatusToggleType(false);
         setDataForEditType(data);
@@ -102,7 +104,9 @@ export default function MsgType() {
         });
         setStatusToggleType(true);
         rowDataChannel.map((item: any) => {
-            setChannelSelected((channelSelected) => [...channelSelected, { value: item._id, label: item.name }]);
+            if (item.status === 'active') {
+                setChannelSelected((channelSelected) => [...channelSelected, { value: item._id, label: item.name }]);
+            }
         });
         setModalAddType(true);
     };
@@ -188,91 +192,172 @@ export default function MsgType() {
                         </div>
 
                         <div className="datatables">
-                            <DataTable
-                                striped
-                                className="whitespace-nowrap table-striped"
-                                records={recordsDataType}
-                                columns={[
-                                    { accessor: 'name', title: 'Type' },
-                                    { accessor: 'desc', title: 'Description' },
-                                    {
-                                        accessor: 'msgChannelId',
-                                        title: 'Channel',
-                                        render: ({ msgChannelId }: any) => {
-                                            return rowDataChannel.map((item: any) => {
-                                                if (item._id === msgChannelId) {
-                                                    return <span>{item.name}</span>;
+                            {recordsDataType.length > 0 ? (
+                                <DataTable
+                                    striped
+                                    className="whitespace-nowrap table-striped"
+                                    records={recordsDataType}
+                                    columns={[
+                                        { accessor: 'name', title: 'Type' },
+                                        { accessor: 'desc', title: 'Description' },
+                                        {
+                                            accessor: 'msgChannelId',
+                                            title: 'Channel',
+                                            render: ({ msgChannelId }: any) => {
+                                                return rowDataChannel.map((item: any) => {
+                                                    if (item._id === msgChannelId) {
+                                                        return <span>{item.name}</span>;
+                                                    }
+                                                });
+                                            },
+                                        },
+                                        {
+                                            accessor: 'status',
+                                            title: 'status',
+                                            width: '200px',
+                                            render: ({ status }: any) => {
+                                                if (status === 'active') {
+                                                    return <span className="badge badge-outline-success">Active</span>;
+                                                } else if (status === 'inactive') {
+                                                    return <span className="badge badge-outline-danger">Inactive</span>;
+                                                } else if (status === 'pending') {
+                                                    return <span className="badge badge-outline-wanning">Pending</span>;
+                                                } else {
+                                                    return <span className="badge badge-outline-dark">Unknown</span>;
                                                 }
-                                            });
+                                            },
                                         },
-                                    },
-                                    {
-                                        accessor: 'status',
-                                        title: 'status',
-                                        width: '200px',
-                                        render: ({ status }: any) => {
-                                            if (status === 'active') {
-                                                return <span className="badge badge-outline-success">Active</span>;
-                                            } else if (status === 'inactive') {
-                                                return <span className="badge badge-outline-danger">Inactive</span>;
-                                            } else if (status === 'pending') {
-                                                return <span className="badge badge-outline-wanning">Pending</span>;
-                                            } else {
-                                                return <span className="badge badge-outline-dark">Unknown</span>;
-                                            }
+                                        {
+                                            accessor: 'actions',
+                                            title: '',
+                                            // align: 'center',
+                                            width: '200px',
+                                            render: (item) => {
+                                                return (
+                                                    <>
+                                                        <div className="flex justify-around">
+                                                            <button type="button" onClick={() => openEditModalType(item)} className="btn btn-warning py-3">
+                                                                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M6.79061 2.54174H2.59307C2.14777 2.54174 1.72071 2.691 1.40583 2.95667C1.09096 3.22235 0.914063 3.58268 0.914062 3.95841V11.7501C0.914063 12.1258 1.09096 12.4861 1.40583 12.7518C1.72071 13.0175 2.14777 13.1667 2.59307 13.1667H11.8276C12.2729 13.1667 12.7 13.0175 13.0149 12.7518C13.3298 12.4861 13.5067 12.1258 13.5067 11.7501V8.20841M12.3196 1.54016C12.4745 1.40485 12.6597 1.29693 12.8646 1.22268C13.0694 1.14843 13.2898 1.10935 13.5127 1.10772C13.7356 1.10608 13.9567 1.14193 14.1631 1.21316C14.3694 1.28439 14.5569 1.38958 14.7145 1.5226C14.8722 1.65561 14.9968 1.81379 15.0813 1.98789C15.1657 2.16199 15.2082 2.34854 15.2062 2.53664C15.2043 2.72475 15.158 2.91064 15.07 3.08348C14.982 3.25632 14.8541 3.41264 14.6937 3.54332L7.48572 9.62507H5.11159V7.62191L12.3196 1.54016Z"
+                                                                        stroke="white"
+                                                                        stroke-linecap="square"
+                                                                        stroke-linejoin="round"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setModalDeleteType(true);
+                                                                    setIdForDeleteType(item._id);
+                                                                }}
+                                                                className="btn btn-danger py-3"
+                                                            >
+                                                                <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
+                                                                        stroke="white"
+                                                                        stroke-linecap="square"
+                                                                        stroke-linejoin="round"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </>
+                                                );
+                                            },
                                         },
-                                    },
-                                    {
-                                        accessor: 'actions',
-                                        title: '',
-                                        // align: 'center',
-                                        width: '200px',
-                                        render: (item) => {
-                                            return (
-                                                <>
-                                                    <div className="flex justify-around">
-                                                        <button type="button" onClick={() => openEditModalType(item)} className="btn btn-warning py-3">
-                                                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path
-                                                                    d="M6.79061 2.54174H2.59307C2.14777 2.54174 1.72071 2.691 1.40583 2.95667C1.09096 3.22235 0.914063 3.58268 0.914062 3.95841V11.7501C0.914063 12.1258 1.09096 12.4861 1.40583 12.7518C1.72071 13.0175 2.14777 13.1667 2.59307 13.1667H11.8276C12.2729 13.1667 12.7 13.0175 13.0149 12.7518C13.3298 12.4861 13.5067 12.1258 13.5067 11.7501V8.20841M12.3196 1.54016C12.4745 1.40485 12.6597 1.29693 12.8646 1.22268C13.0694 1.14843 13.2898 1.10935 13.5127 1.10772C13.7356 1.10608 13.9567 1.14193 14.1631 1.21316C14.3694 1.28439 14.5569 1.38958 14.7145 1.5226C14.8722 1.65561 14.9968 1.81379 15.0813 1.98789C15.1657 2.16199 15.2082 2.34854 15.2062 2.53664C15.2043 2.72475 15.158 2.91064 15.07 3.08348C14.982 3.25632 14.8541 3.41264 14.6937 3.54332L7.48572 9.62507H5.11159V7.62191L12.3196 1.54016Z"
-                                                                    stroke="white"
-                                                                    stroke-linecap="square"
-                                                                    stroke-linejoin="round"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setModalDeleteType(true);
-                                                                setIdForDeleteType(item._id);
-                                                            }}
-                                                            className="btn btn-danger py-3"
-                                                        >
-                                                            <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path
-                                                                    d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
-                                                                    stroke="white"
-                                                                    stroke-linecap="square"
-                                                                    stroke-linejoin="round"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </>
-                                            );
+                                    ]}
+                                    totalRecords={initialRecordsType.length}
+                                    recordsPerPage={pageSize}
+                                    page={page}
+                                    onPageChange={(p) => setPage(p)}
+                                    // recordsPerPageOptions={PAGE_SIZES}
+                                    // onRecordsPerPageChange={setPageSize}
+                                    minHeight={200}
+                                    paginationText={({ from, to, totalRecords }) => ``}
+                                />
+                            ) : (
+                                <DataTable
+                                    striped
+                                    className="whitespace-nowrap table-striped"
+                                    records={recordsDataType}
+                                    columns={[
+                                        { accessor: 'name', title: 'Type' },
+                                        { accessor: 'desc', title: 'Description' },
+                                        {
+                                            accessor: 'msgChannelId',
+                                            title: 'Channel',
+                                            render: ({ msgChannelId }: any) => {
+                                                return rowDataChannel.map((item: any) => {
+                                                    if (item._id === msgChannelId) {
+                                                        return <span>{item.name}</span>;
+                                                    }
+                                                });
+                                            },
                                         },
-                                    },
-                                ]}
-                                totalRecords={initialRecordsType.length}
-                                recordsPerPage={pageSize}
-                                page={page}
-                                onPageChange={(p) => setPage(p)}
-                                // recordsPerPageOptions={PAGE_SIZES}
-                                // onRecordsPerPageChange={setPageSize}
-                                minHeight={200}
-                                paginationText={({ from, to, totalRecords }) => ``}
-                            />
+                                        {
+                                            accessor: 'status',
+                                            title: 'status',
+                                            width: '200px',
+                                            render: ({ status }: any) => {
+                                                if (status === 'active') {
+                                                    return <span className="badge badge-outline-success">Active</span>;
+                                                } else if (status === 'inactive') {
+                                                    return <span className="badge badge-outline-danger">Inactive</span>;
+                                                } else if (status === 'pending') {
+                                                    return <span className="badge badge-outline-wanning">Pending</span>;
+                                                } else {
+                                                    return <span className="badge badge-outline-dark">Unknown</span>;
+                                                }
+                                            },
+                                        },
+                                        {
+                                            accessor: 'actions',
+                                            title: '',
+                                            // align: 'center',
+                                            width: '200px',
+                                            render: (item) => {
+                                                return (
+                                                    <>
+                                                        <div className="flex justify-around">
+                                                            <button type="button" onClick={() => openEditModalType(item)} className="btn btn-warning py-3">
+                                                                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M6.79061 2.54174H2.59307C2.14777 2.54174 1.72071 2.691 1.40583 2.95667C1.09096 3.22235 0.914063 3.58268 0.914062 3.95841V11.7501C0.914063 12.1258 1.09096 12.4861 1.40583 12.7518C1.72071 13.0175 2.14777 13.1667 2.59307 13.1667H11.8276C12.2729 13.1667 12.7 13.0175 13.0149 12.7518C13.3298 12.4861 13.5067 12.1258 13.5067 11.7501V8.20841M12.3196 1.54016C12.4745 1.40485 12.6597 1.29693 12.8646 1.22268C13.0694 1.14843 13.2898 1.10935 13.5127 1.10772C13.7356 1.10608 13.9567 1.14193 14.1631 1.21316C14.3694 1.28439 14.5569 1.38958 14.7145 1.5226C14.8722 1.65561 14.9968 1.81379 15.0813 1.98789C15.1657 2.16199 15.2082 2.34854 15.2062 2.53664C15.2043 2.72475 15.158 2.91064 15.07 3.08348C14.982 3.25632 14.8541 3.41264 14.6937 3.54332L7.48572 9.62507H5.11159V7.62191L12.3196 1.54016Z"
+                                                                        stroke="white"
+                                                                        stroke-linecap="square"
+                                                                        stroke-linejoin="round"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setModalDeleteType(true);
+                                                                    setIdForDeleteType(item._id);
+                                                                }}
+                                                                className="btn btn-danger py-3"
+                                                            >
+                                                                <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M5.5 7.25V11.75M8.5 7.25V11.75M1 4.25H13M12.25 4.25L11.5997 13.3565C11.5728 13.7349 11.4035 14.0891 11.1258 14.3477C10.8482 14.6063 10.4829 14.75 10.1035 14.75H3.8965C3.5171 14.75 3.1518 14.6063 2.87416 14.3477C2.59653 14.0891 2.42719 13.7349 2.40025 13.3565L1.75 4.25H12.25ZM9.25 4.25V2C9.25 1.80109 9.17098 1.61032 9.03033 1.46967C8.88968 1.32902 8.69891 1.25 8.5 1.25H5.5C5.30109 1.25 5.11032 1.32902 4.96967 1.46967C4.82902 1.61032 4.75 1.80109 4.75 2V4.25H9.25Z"
+                                                                        stroke="white"
+                                                                        stroke-linecap="square"
+                                                                        stroke-linejoin="round"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </>
+                                                );
+                                            },
+                                        },
+                                    ]}
+                                    minHeight={200}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -297,8 +382,8 @@ export default function MsgType() {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
-                                    <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
+                                <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow my-8 w-full max-w-xl text-black dark:text-white-dark">
+                                    <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3 rounded-lg">
                                         <div className="text-lg font-bold">Edit Type</div>
                                     </div>
                                     <div className="p-5">
@@ -368,7 +453,7 @@ export default function MsgType() {
                                         </form>
 
                                         <div className="flex justify-end items-center mt-8">
-                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalAddType(false)}>
+                                            <button type="button" className="btn bg-[#848080] text-white" onClick={() => setModalEditType(false)}>
                                                 Cancel
                                             </button>
                                             {/* <button type="button" className="btn btn-info ltr:ml-4 rtl:mr-4" onClick={() => updateType()}>
@@ -410,8 +495,8 @@ export default function MsgType() {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow-visible my-8 w-full max-w-xl text-black dark:text-white-dark">
-                                    <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
+                                <Dialog.Panel as="div" className="panel border-0 p-0 rounded-lg overflow my-8 w-full max-w-xl text-black dark:text-white-dark">
+                                    <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3 rounded-lg">
                                         <div className="text-lg font-bold">Add Type</div>
                                     </div>
                                     <div className="p-5">

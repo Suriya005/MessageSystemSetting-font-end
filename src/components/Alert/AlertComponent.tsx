@@ -41,6 +41,9 @@ const AlertComponent = (props: any) => {
                     case 200:
                         showMessage(`${collectionName} has been successfully created!`, 'success');
                         break;
+                    case 202:
+                        showMessage(`This ${collectionName.toLocaleLowerCase()} is already in use, Please use a different name.`, 'warning');
+                        break;
                     case 102:
                     case 201:
                         showMessage(`Failed to create ${collectionName.toLocaleLowerCase()}, Please try again.`, 'warning');
@@ -71,6 +74,9 @@ const AlertComponent = (props: any) => {
                     case 102:
                     case 201:
                         showMessage(`Failed to update ${collectionName.toLocaleLowerCase()}, Please try again.`, 'warning');
+                        break;
+                    case 202:
+                        showMessage(`This ${collectionName.toLocaleLowerCase()} is already in use, Please use a different name.`, 'warning');
                         break;
                     case 500:
                     case 501:

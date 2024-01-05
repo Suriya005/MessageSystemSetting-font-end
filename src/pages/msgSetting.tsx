@@ -9,10 +9,7 @@ import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import { Dialog, Transition } from '@headlessui/react';
 import { Tab } from '@headlessui/react';
-import Select from 'react-select';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { em } from '@fullcalendar/core/internal-common';
 
 import React from 'react';
 
@@ -32,13 +29,12 @@ const msgSetting = () => {
     const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
 
     const [loading] = useState(false);
-    const [currentTabName, setCurrentTabName] = useState('Provider');
+    const [currentTabName, setCurrentTabName] = useState('');
 
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(setPageTitle('Message Setting'));
     });
-
 
     return isLoaded ? (
         <div className="loader">s</div>
@@ -107,8 +103,7 @@ const msgSetting = () => {
                 <Tab.Panels>
                     {/* Provider content */}
                     <Tab.Panel>
-                            <MsgProvider />
-                        
+                        <MsgProvider />
                     </Tab.Panel>
 
                     {/* Channel content */}
